@@ -4,49 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Teacher Dashboard | Smash GCSE</title>
+  <link rel="stylesheet" href="shared.css" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      min-height: 100vh;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      color: #fff;
-    }
-    nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1rem 2rem;
-      background: rgba(0,0,0,0.2);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
-    .logo { font-size: 1.2rem; font-weight: 800; }
-    .logo span { color: #7eb8f7; }
-    .nav-right { display: flex; align-items: center; gap: 1rem; font-size: 0.9rem; color: rgba(255,255,255,0.7); }
-    .logout-btn {
-      padding: 0.4rem 1rem;
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.15);
-      color: #fff;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.85rem;
-      font-weight: 600;
-      transition: background 0.2s;
-    }
-    .logout-btn:hover { background: rgba(255,255,255,0.2); }
-    main { padding: 2rem; max-width: 900px; margin: 0 auto; }
-    .welcome { margin-bottom: 2rem; }
-    .welcome h1 { font-size: 1.8rem; font-weight: 800; }
-    .welcome p { color: rgba(255,255,255,0.55); margin-top: 0.3rem; }
-    .section-title {
-      font-size: 0.8rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: rgba(255,255,255,0.5);
-      margin-bottom: 1rem;
-    }
+    main { max-width: 900px; }
     .card {
       background: rgba(255,255,255,0.06);
       border: 1px solid rgba(255,255,255,0.1);
@@ -159,22 +119,10 @@
   </main>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, addDoc, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { auth, db } from './firebase-config.js';
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { doc, getDoc, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBJNEAXgj8llBi52GV3-rPI5I6ch_3_FFI",
-      authDomain: "gcse-revision-b75d3.firebaseapp.com",
-      projectId: "gcse-revision-b75d3",
-      storageBucket: "gcse-revision-b75d3.firebasestorage.app",
-      messagingSenderId: "904812528723",
-      appId: "1:904812528723:web:647fa52a3311af519472a6"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
     let currentUserId = null;
 
     onAuthStateChanged(auth, async (user) => {

@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Subject | Smash GCSE</title>
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    main { max-width: 1200px; }
+
+    /* ── Page header ── */
+    .page-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
+    .back-btn { padding: 0.4rem 1rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: background 0.2s; text-decoration: none; display: inline-block; }
+    .back-btn:hover { background: rgba(255,255,255,0.2); }
+    .page-header h2 { font-size: 1.5rem; font-weight: 800; }
+
+    /* ── Progress panel ── */
+    .panel { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1.2rem 1.5rem; margin-bottom: 1rem; }
+    .panel-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.4); margin-bottom: 1rem; }
+    .progress-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
+    .stat-card { background: rgba(255,255,255,0.06); border-radius: 10px; padding: 0.75rem 1rem; text-align: center; }
+    .stat-value { font-size: 1.4rem; font-weight: 800; color: #7eb8f7; }
+    .stat-label { font-size: 0.72rem; color: rgba(255,255,255,0.45); margin-top: 0.2rem; }
+    .bar-row { display: flex; justify-content: space-between; font-size: 0.78rem; color: rgba(255,255,255,0.45); margin-bottom: 0.4rem; }
+    .bar-track { background: rgba(255,255,255,0.08); border-radius: 99px; height: 7px; }
+    .bar-fill { background: linear-gradient(90deg, #7eb8f7, #0f3460); border-radius: 99px; height: 7px; transition: width 0.6s ease; }
+
+    /* ── Activity panel ── */
+    .activity-item { display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.87rem; }
+    .activity-item:last-child { border-bottom: none; }
+    .badge { font-size: 0.72rem; padding: 0.2rem 0.6rem; border-radius: 20px; font-weight: 600; }
+    .badge-green  { background: rgba(129,199,132,0.15); color: #81c784; }
+    .badge-blue   { background: rgba(126,184,247,0.15); color: #7eb8f7; }
+    .badge-yellow { background: rgba(255,213,0,0.12);   color: #ffd54f; }
+
+    /* ── Two-column layout ── */
+    .subject-layout { display: grid; grid-template-columns: 210px 1fr; gap: 1.5rem; align-items: start; }
+
+    /* ── Sidebar ── */
+    .sidebar { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 0.5rem; display: flex; flex-direction: column; gap: 0.2rem; position: sticky; top: 80px; }
+    .section-btn { width: 100%; text-align: left; padding: 0.7rem 1rem; background: transparent; border: none; color: rgba(255,255,255,0.6); border-radius: 8px; cursor: pointer; font-size: 0.87rem; font-weight: 600; transition: all 0.15s; display: flex; align-items: center; gap: 0.5rem; }
+    .section-btn:hover { background: rgba(255,255,255,0.07); color: #fff; }
+    .section-btn.active { background: rgba(126,184,247,0.15); color: #7eb8f7; }
+
+    /* ── Content area ── */
+    .content-area { min-height: 400px; }
+    .content-header { margin-bottom: 1.2rem; }
+    .content-header h3 { font-size: 1.15rem; font-weight: 800; }
+    .content-header p { color: rgba(255,255,255,0.45); font-size: 0.83rem; margin-top: 0.25rem; }
+
+    /* ── Need to Know ── */
+    .topic-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.2rem 1.4rem; margin-bottom: 1rem; }
+    .topic-card h4 { font-size: 0.95rem; font-weight: 700; color: #7eb8f7; margin-bottom: 0.8rem; }
+    .topic-points { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+    .topic-points li { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.87rem; color: rgba(255,255,255,0.8); line-height: 1.5; }
+    .topic-points li::before { content: '→'; color: #7eb8f7; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── Flashcards ── */
+    .flashcards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; }
+    .flashcard { height: 155px; perspective: 1000px; cursor: pointer; }
+    .flashcard-inner { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.45s; }
+    .flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+    .flashcard-front, .flashcard-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.1rem; text-align: center; }
+    .flashcard-front { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); }
+    .flashcard-back  { background: rgba(126,184,247,0.1); border: 1px solid rgba(126,184,247,0.2); transform: rotateY(180deg); }
+    .fc-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.35); margin-bottom: 0.4rem; }
+    .fc-text  { font-size: 0.87rem; font-weight: 600; line-height: 1.4; }
+    .flashcard-back .fc-text { color: #a8d4ff; }
+    .fc-hint  { font-size: 0.7rem; color: rgba(255,255,255,0.25); margin-top: 0.4rem; }
+
+    /* ── Quiz ── */
+    .quiz-container { display: flex; flex-direction: column; gap: 1rem; }
+    .quiz-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.2rem 1.4rem; }
+    .q-num  { font-size: 0.75rem; color: rgba(255,255,255,0.35); margin-bottom: 0.3rem; }
+    .q-text { font-size: 0.93rem; font-weight: 600; margin-bottom: 1rem; }
+    .quiz-options { display: flex; flex-direction: column; gap: 0.45rem; }
+    .quiz-option { display: flex; align-items: center; gap: 0.7rem; padding: 0.6rem 0.9rem; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; cursor: pointer; font-size: 0.87rem; transition: all 0.15s; user-select: none; }
+    .quiz-option:hover { background: rgba(255,255,255,0.09); }
+    .quiz-option.selected { border-color: #7eb8f7; background: rgba(126,184,247,0.1); }
+    .quiz-option.correct  { border-color: #81c784; background: rgba(129,199,132,0.1); color: #81c784; }
+    .quiz-option.wrong    { border-color: #e57373; background: rgba(229,115,115,0.08); color: #e57373; }
+    .opt-letter { width: 22px; height: 22px; border-radius: 50%; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
+    .quiz-submit { padding: 0.7rem 2rem; background: #0f3460; color: #fff; border: none; border-radius: 8px; font-size: 0.93rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+    .quiz-submit:hover    { background: #1a4a7a; }
+    .quiz-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+    .quiz-result { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1.5rem; text-align: center; }
+    .result-score { font-size: 2.8rem; font-weight: 800; color: #7eb8f7; }
+    .result-label { color: rgba(255,255,255,0.45); font-size: 0.88rem; margin-top: 0.3rem; }
+    .retake-btn { margin-top: 1rem; padding: 0.55rem 1.4rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.87rem; transition: background 0.2s; }
+    .retake-btn:hover { background: rgba(255,255,255,0.18); }
+
+    /* ── Questions by Topic ── */
+    .questions-topic { margin-bottom: 1.5rem; }
+    .questions-topic h4 { font-size: 0.95rem; font-weight: 700; color: #7eb8f7; margin-bottom: 0.8rem; }
+    .question-item { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+    .question-item p { font-size: 0.87rem; margin-bottom: 0.6rem; color: rgba(255,255,255,0.85); line-height: 1.5; }
+    .show-answer-btn { padding: 0.3rem 0.75rem; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.55); border-radius: 6px; cursor: pointer; font-size: 0.77rem; font-weight: 600; transition: all 0.15s; }
+    .show-answer-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+    .answer-box { margin-top: 0.75rem; padding: 0.75rem 1rem; background: rgba(126,184,247,0.06); border-left: 3px solid #7eb8f7; border-radius: 0 6px 6px 0; font-size: 0.84rem; color: rgba(255,255,255,0.75); line-height: 1.6; }
+
+    /* ── Past Papers ── */
+    .papers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 1rem; }
+    .paper-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.2rem; text-decoration: none; color: #fff; transition: all 0.2s; display: block; }
+    .paper-card:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+    .paper-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+    .paper-name { font-weight: 700; font-size: 0.9rem; }
+    .paper-desc { font-size: 0.78rem; color: rgba(255,255,255,0.45); margin-top: 0.3rem; }
+
+    /* ── Responsive ── */
+    @media (max-width: 700px) {
+      .subject-layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; flex-direction: row; flex-wrap: wrap; }
+      .section-btn { flex: 1; min-width: 110px; justify-content: center; }
+      .progress-stats { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="logo">📚 Smash<span>GCSE</span></div>
+    <div class="nav-right">
+      <span id="username-display"></span>
+      <button class="logout-btn" id="logout-btn">Log Out</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-header">
+      <a class="back-btn" href="student-dashboard.html">← All Subjects</a>
+      <h2 id="subject-title"></h2>
+    </div>
+
+    <!-- Progress -->
+    <div class="panel">
+      <div class="panel-title">Your Progress</div>
+      <div class="progress-stats" id="progress-stats"></div>
+      <div class="bar-row"><span>Overall completion</span><span id="overall-pct">0%</span></div>
+      <div class="bar-track"><div class="bar-fill" id="overall-bar" style="width:0%"></div></div>
+    </div>
+
+    <!-- Activity -->
+    <div class="panel" style="margin-bottom:1.5rem">
+      <div class="panel-title">Activity</div>
+      <div id="activity-list"><p class="empty" style="font-size:0.85rem">No activity yet — start revising below!</p></div>
+    </div>
+
+    <!-- Sidebar + Content -->
+    <div class="subject-layout">
+      <nav class="sidebar">
+        <button class="section-btn active" data-section="need-to-know">📋 Need to Know</button>
+        <button class="section-btn" data-section="flashcards">🃏 Flashcards</button>
+        <button class="section-btn" data-section="quiz">✅ Quiz</button>
+        <button class="section-btn" data-section="questions-by-topic">📝 Questions by Topic</button>
+        <button class="section-btn" data-section="past-papers">📄 Past Papers</button>
+      </nav>
+      <div class="content-area" id="content-area"></div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { auth, db } from './firebase-config.js';
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    // ── Content data ──────────────────────────────────────────────────────────
+    const SUBJECTS = {
+      biology: {
+        name: 'Biology',
+        needToKnow: [
+          { title: 'Cell Biology', points: [
+            'Animal cells: nucleus, cytoplasm, cell membrane, mitochondria, ribosomes',
+            'Plant cells also have: cell wall (cellulose), chloroplasts, permanent vacuole',
+            'Prokaryotic cells (bacteria) have NO nucleus — DNA floats freely in cytoplasm',
+            'Eukaryotic cells have a true nucleus enclosed by a nuclear membrane',
+            'Specialised cells are adapted for their function (e.g. red blood cells have no nucleus to carry more haemoglobin)'
+          ]},
+          { title: 'Genetics', points: [
+            'DNA is a double helix made of nucleotides; stored in the nucleus on chromosomes',
+            'A gene is a section of DNA that codes for a specific protein',
+            'Humans have 23 pairs of chromosomes (46 total)',
+            'Dominant alleles always show in the phenotype; recessive only shows when homozygous (bb)',
+            'Mitosis: 2 genetically identical daughter cells — for growth and repair',
+            'Meiosis: 4 genetically different cells — for sexual reproduction (gametes)'
+          ]},
+          { title: 'Photosynthesis & Respiration', points: [
+            'Photosynthesis: 6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂ (requires light energy)',
+            'Takes place in chloroplasts; chlorophyll absorbs light energy',
+            'Limiting factors: light intensity, CO₂ concentration, temperature',
+            'Aerobic respiration: Glucose + Oxygen → Carbon dioxide + Water (+ energy)',
+            'Anaerobic respiration in animals: Glucose → Lactic acid (causes muscle fatigue)'
+          ]},
+          { title: 'Homeostasis', points: [
+            'Homeostasis: maintaining a stable internal environment',
+            'Blood glucose regulated by insulin (lowers) and glucagon (raises) from the pancreas',
+            'Type 1 diabetes: pancreas produces no insulin; managed with insulin injections',
+            'Type 2 diabetes: body cells don\'t respond to insulin; linked to obesity and diet',
+            'Body temperature maintained at 37°C by the thermoregulatory centre in the brain'
+          ]}
+        ],
+        flashcards: [
+          { front: 'What is the word equation for photosynthesis?', back: 'Carbon dioxide + Water → Glucose + Oxygen (requires light energy)' },
+          { front: 'What is the function of mitochondria?', back: 'Site of aerobic respiration — releases energy (ATP) for the cell' },
+          { front: 'What is osmosis?', back: 'Net movement of water from high to low water concentration through a partially permeable membrane' },
+          { front: 'What is the difference between mitosis and meiosis?', back: 'Mitosis: 2 identical cells for growth/repair. Meiosis: 4 different gametes for reproduction' },
+          { front: 'What hormone lowers blood glucose?', back: 'Insulin, produced by the beta cells in the pancreas' },
+          { front: 'What does DNA stand for?', back: 'Deoxyribonucleic Acid' },
+          { front: 'What are the products of aerobic respiration?', back: 'Carbon dioxide, water, and energy (ATP)' },
+          { front: 'What is the role of ribosomes?', back: 'Site of protein synthesis — they build proteins from amino acids using instructions from mRNA' }
+        ],
+        quiz: [
+          { question: 'Which organelle is found in plant cells but NOT animal cells?', options: ['Mitochondria', 'Cell wall', 'Nucleus', 'Ribosomes'], correct: 1 },
+          { question: 'What type of cell division produces gametes?', options: ['Mitosis', 'Binary fission', 'Meiosis', 'Budding'], correct: 2 },
+          { question: 'Which gas is produced during photosynthesis?', options: ['Carbon dioxide', 'Nitrogen', 'Oxygen', 'Hydrogen'], correct: 2 },
+          { question: 'What is the role of insulin in the body?', options: ['Increases blood glucose', 'Lowers blood glucose', 'Increases heart rate', 'Breaks down fat'], correct: 1 },
+          { question: 'Where does aerobic respiration take place?', options: ['Nucleus', 'Ribosomes', 'Chloroplasts', 'Mitochondria'], correct: 3 }
+        ],
+        questionsByTopic: [
+          { topic: 'Cell Biology', questions: [
+            { q: 'Describe the differences between a plant cell and an animal cell. [4 marks]', a: 'Plant cells have: cell wall (cellulose), chloroplasts, permanent vacuole. Animal cells do not have these. Both have: nucleus, cytoplasm, cell membrane, mitochondria, ribosomes.' },
+            { q: 'Explain what is meant by a partially permeable membrane. [2 marks]', a: 'A membrane that allows small molecules (like water) to pass through but blocks larger molecules. This selective permeability is key to the process of osmosis.' }
+          ]},
+          { topic: 'Genetics', questions: [
+            { q: 'A plant has alleles Bb (B=red, b=white). Cross two Bb plants. What proportion of offspring will be red? Show your working. [3 marks]', a: 'Cross: Bb × Bb → BB, Bb, Bb, bb. Three out of four offspring (75%) carry at least one dominant B allele and will be red. Only bb (25%) will be white.' },
+            { q: 'Explain why meiosis is important for genetic variation. [2 marks]', a: 'Meiosis produces 4 genetically different gametes through independent assortment of chromosomes and crossing over. This means offspring are not genetically identical to their parents, creating variation.' }
+          ]}
+        ],
+        pastPapers: [
+          { board: 'AQA Biology', desc: 'GCSE Biology (8461) papers & mark schemes', url: 'https://www.aqa.org.uk/subjects/science/gcse/biology-8461/assessment-resources' },
+          { board: 'Edexcel Biology', desc: 'GCSE Biology past papers', url: 'https://qualifications.pearson.com/en/qualifications/edexcel-gcses/biology-2016.html' },
+          { board: 'OCR Biology', desc: 'GCSE Biology (J247) past papers', url: 'https://www.ocr.org.uk/qualifications/gcse/biology-a-gateway-science-suite-j247-from-2016/assessment/' }
+        ]
+      },
+      chemistry: {
+        name: 'Chemistry',
+        needToKnow: [
+          { title: 'Atomic Structure', points: [
+            'Proton: charge +1, mass 1. Neutron: charge 0, mass 1. Electron: charge −1, negligible mass',
+            'Atomic number = number of protons. Mass number = protons + neutrons',
+            'Isotopes: same element, same protons, different number of neutrons',
+            'Electron shells fill in order: 2, 8, 8... (e.g. Sodium = 2,8,1)',
+            'Ions form when atoms gain or lose electrons'
+          ]},
+          { title: 'Chemical Bonding', points: [
+            'Ionic bonding: transfer of electrons from metal to non-metal — ions held by electrostatic forces',
+            'Covalent bonding: sharing of electrons between non-metals',
+            'Metallic bonding: sea of delocalised electrons around positive metal ions',
+            'Giant ionic lattice: very high melting point; conducts when molten or dissolved in water',
+            'Simple molecular structures: low melting point; do NOT conduct electricity'
+          ]},
+          { title: 'Calculations', points: [
+            'Moles = mass ÷ relative formula mass (Mr)',
+            'Percentage yield = (actual yield ÷ theoretical yield) × 100',
+            'Atom economy = (mass of desired product ÷ total mass of reactants) × 100',
+            'Concentration (mol/dm³) = moles ÷ volume (dm³)',
+            'Exothermic: releases energy (temperature rises). Endothermic: absorbs energy (temperature falls)'
+          ]},
+          { title: 'Acids & Bases', points: [
+            'Acids: pH < 7. Bases: pH > 7. Neutral: pH = 7',
+            'Neutralisation: acid + base → salt + water',
+            'Strong acids fully ionise in water (HCl, H₂SO₄, HNO₃)',
+            'Weak acids only partially ionise (ethanoic acid, citric acid)',
+            'Rate of reaction increases with: higher temperature, higher concentration, smaller particle size, catalyst'
+          ]}
+        ],
+        flashcards: [
+          { front: 'What is the formula for calculating moles?', back: 'Moles = Mass ÷ Relative Formula Mass (Mr)' },
+          { front: 'What happens in an exothermic reaction?', back: 'Energy is released to the surroundings — the temperature rises. Examples: combustion, neutralisation' },
+          { front: 'What is the difference between ionic and covalent bonding?', back: 'Ionic: transfer of electrons (metal + non-metal). Covalent: sharing of electrons (non-metals only)' },
+          { front: 'What is Avogadro\'s number?', back: '6.02 × 10²³ — the number of particles in one mole of a substance' },
+          { front: 'What is a catalyst?', back: 'A substance that speeds up a reaction without being used up, by providing a lower activation energy pathway' },
+          { front: 'What is the test for hydrogen gas?', back: 'Hold a lit splint near the gas — it burns with a squeaky pop' },
+          { front: 'What products form when acid reacts with a metal carbonate?', back: 'Salt + Water + Carbon dioxide' },
+          { front: 'What is the pH of a neutral solution?', back: 'pH 7' }
+        ],
+        quiz: [
+          { question: 'What is the atomic number of carbon?', options: ['4', '6', '12', '14'], correct: 1 },
+          { question: 'Which type of bonding involves the transfer of electrons?', options: ['Covalent', 'Metallic', 'Ionic', 'Hydrogen'], correct: 2 },
+          { question: 'A reaction has a theoretical yield of 50g but produces 40g. What is the % yield?', options: ['40%', '50%', '80%', '125%'], correct: 2 },
+          { question: 'Which of these is an exothermic reaction?', options: ['Photosynthesis', 'Thermal decomposition', 'Electrolysis', 'Combustion'], correct: 3 },
+          { question: 'What does a catalyst do?', options: ['Increases activation energy', 'Gets used up', 'Lowers activation energy', 'Changes the products'], correct: 2 }
+        ],
+        questionsByTopic: [
+          { topic: 'Atomic Structure', questions: [
+            { q: 'Sodium has atomic number 11 and mass number 23. State the number of protons, neutrons and electrons. [3 marks]', a: 'Protons: 11. Neutrons: 23 − 11 = 12. Electrons: 11 (equal to protons for a neutral atom).' },
+            { q: 'Explain why sodium chloride (NaCl) has a high melting point. [3 marks]', a: 'NaCl has a giant ionic lattice structure. Strong electrostatic forces of attraction exist between Na⁺ and Cl⁻ ions throughout the structure. A large amount of energy is needed to overcome these forces.' }
+          ]},
+          { topic: 'Rates of Reaction', questions: [
+            { q: 'Describe and explain how increasing temperature increases the rate of reaction. [3 marks]', a: 'Higher temperature gives particles more kinetic energy so they move faster. This causes more frequent collisions and a greater proportion have energy ≥ activation energy, so more successful collisions happen per second.' },
+            { q: '5g of marble chips are added to excess HCl. What happens to the rate if the chips are ground to powder? Explain. [2 marks]', a: 'The rate increases. Grinding the chips into powder increases the surface area exposed to the acid, so more particle collisions occur per second, increasing the rate.' }
+          ]}
+        ],
+        pastPapers: [
+          { board: 'AQA Chemistry', desc: 'GCSE Chemistry (8462) papers & mark schemes', url: 'https://www.aqa.org.uk/subjects/science/gcse/chemistry-8462/assessment-resources' },
+          { board: 'Edexcel Chemistry', desc: 'GCSE Chemistry past papers', url: 'https://qualifications.pearson.com/en/qualifications/edexcel-gcses/chemistry-2016.html' },
+          { board: 'OCR Chemistry', desc: 'GCSE Chemistry (J248) past papers', url: 'https://www.ocr.org.uk/qualifications/gcse/chemistry-a-gateway-science-suite-j248-from-2016/assessment/' }
+        ]
+      },
+      physics: {
+        name: 'Physics',
+        needToKnow: [
+          { title: 'Forces & Motion', points: [
+            'Speed = distance ÷ time. Velocity also includes direction (it is a vector)',
+            'Acceleration = change in velocity ÷ time (a = Δv/t)',
+            'Newton\'s 2nd Law: Force = mass × acceleration (F = ma)',
+            'Weight = mass × gravitational field strength (W = mg; g = 9.8 N/kg on Earth)',
+            'Stopping distance = thinking distance + braking distance'
+          ]},
+          { title: 'Electricity', points: [
+            'Ohm\'s Law: Voltage = Current × Resistance (V = IR)',
+            'Power: P = IV = I²R = V²/R',
+            'Series circuit: same current throughout; voltages add up',
+            'Parallel circuit: same voltage across all branches; currents add up',
+            'Charge = current × time (Q = It); measured in coulombs (C)'
+          ]},
+          { title: 'Waves', points: [
+            'Wave speed = frequency × wavelength (v = fλ)',
+            'Transverse waves: oscillation perpendicular to direction of travel (light, water)',
+            'Longitudinal waves: oscillation parallel to direction of travel (sound)',
+            'EM spectrum (low → high frequency): radio, microwave, infrared, visible, UV, X-ray, gamma',
+            'All EM waves travel at 3 × 10⁸ m/s in a vacuum'
+          ]},
+          { title: 'Energy', points: [
+            'Kinetic energy: KE = ½mv²',
+            'Gravitational potential energy: GPE = mgh',
+            'Efficiency = (useful energy output ÷ total energy input) × 100%',
+            'Energy is conserved — it cannot be created or destroyed, only transferred',
+            'Power = energy transferred ÷ time (P = E/t); unit is watts (W)'
+          ]}
+        ],
+        flashcards: [
+          { front: 'What is Ohm\'s Law?', back: 'Voltage = Current × Resistance (V = IR)' },
+          { front: 'What is the formula for kinetic energy?', back: 'KE = ½mv² (m = mass in kg, v = velocity in m/s)' },
+          { front: 'What is the difference between mass and weight?', back: 'Mass (kg) = amount of matter. Weight (N) = gravitational force acting on that mass. W = mg' },
+          { front: 'State the formula for wave speed', back: 'Wave speed = frequency × wavelength → v = fλ' },
+          { front: 'What type of wave is sound?', back: 'Longitudinal wave — particles vibrate parallel to the direction of wave travel' },
+          { front: 'State Newton\'s Third Law', back: 'For every action there is an equal and opposite reaction. Forces always come in pairs.' },
+          { front: 'What is the unit of electrical resistance?', back: 'Ohm (Ω)' },
+          { front: 'How do you calculate efficiency?', back: 'Efficiency (%) = (useful energy output ÷ total energy input) × 100' }
+        ],
+        quiz: [
+          { question: 'A car travels 300m in 15 seconds. What is its speed?', options: ['10 m/s', '15 m/s', '20 m/s', '300 m/s'], correct: 2 },
+          { question: 'A resistor has V = 12V and I = 3A. What is its resistance?', options: ['36 Ω', '4 Ω', '9 Ω', '15 Ω'], correct: 1 },
+          { question: 'Which part of the EM spectrum has the highest frequency?', options: ['Radio waves', 'Visible light', 'X-rays', 'Gamma rays'], correct: 3 },
+          { question: 'What is the formula for gravitational potential energy?', options: ['GPE = mv²', 'GPE = ½mv²', 'GPE = mgh', 'GPE = F × d'], correct: 2 },
+          { question: 'In a parallel circuit, what is the same across all branches?', options: ['Current', 'Resistance', 'Voltage', 'Power'], correct: 2 }
+        ],
+        questionsByTopic: [
+          { topic: 'Forces & Motion', questions: [
+            { q: 'A car of mass 1200 kg accelerates from 0 to 20 m/s in 8 seconds. Calculate the force required. [3 marks]', a: 'Acceleration: a = Δv/t = 20/8 = 2.5 m/s². Force: F = ma = 1200 × 2.5 = 3000 N' },
+            { q: 'Explain why braking distance increases on a wet road. [3 marks]', a: 'A wet road reduces friction between tyres and road. Smaller friction = smaller braking force. From F = ma, less force means less deceleration, so the car takes longer to stop and travels further.' }
+          ]},
+          { topic: 'Electricity', questions: [
+            { q: 'A lamp has a power of 60 W and is connected to a 230 V supply. Calculate the current. [3 marks]', a: 'Using P = IV, rearrange: I = P/V = 60/230 = 0.26 A (2 s.f.)' },
+            { q: 'Describe the difference between series and parallel circuits and give one advantage of parallel circuits in the home. [3 marks]', a: 'Series: one loop, same current, if one component breaks all fail. Parallel: separate branches, same voltage across each. Advantage: if one component fails (e.g. a bulb), the others continue to work independently.' }
+          ]}
+        ],
+        pastPapers: [
+          { board: 'AQA Physics', desc: 'GCSE Physics (8463) papers & mark schemes', url: 'https://www.aqa.org.uk/subjects/science/gcse/physics-8463/assessment-resources' },
+          { board: 'Edexcel Physics', desc: 'GCSE Physics past papers', url: 'https://qualifications.pearson.com/en/qualifications/edexcel-gcses/physics-2016.html' },
+          { board: 'OCR Physics', desc: 'GCSE Physics (J249) past papers', url: 'https://www.ocr.org.uk/qualifications/gcse/physics-a-gateway-science-suite-j249-from-2016/assessment/' }
+        ]
+      },
+      computerScience: {
+        name: 'Computer Science',
+        needToKnow: [
+          { title: 'Algorithms & Problem Solving', points: [
+            'Decomposition: breaking a complex problem into smaller, manageable sub-problems',
+            'Abstraction: removing unnecessary detail to focus on what is important',
+            'Linear search: checks each item one by one — O(n), works on unsorted lists',
+            'Binary search: halves the search space each step — O(log n), requires a sorted list',
+            'Bubble sort: repeatedly swaps adjacent elements if out of order — simple but slow for large data'
+          ]},
+          { title: 'Programming Fundamentals', points: [
+            'Data types: integer, float, string, boolean, character',
+            'Selection: if/elif/else — runs code only if a condition is true',
+            'Iteration: for loops (fixed number of repeats), while loops (condition-based)',
+            'Functions: named, reusable blocks of code; can take parameters and return values',
+            'Arrays/lists: ordered collections of items stored under one variable name'
+          ]},
+          { title: 'Computer Systems', points: [
+            'CPU components: ALU (arithmetic/logic), Control Unit, registers, cache',
+            'RAM: volatile, temporary working memory — data lost when powered off',
+            'ROM: non-volatile, permanent — stores boot/startup instructions',
+            '1 byte = 8 bits; 1 KB = 1024 B; 1 MB = 1024 KB; 1 GB = 1024 MB',
+            'Fetch-Decode-Execute cycle: CPU fetches instruction from RAM, decodes it, then executes it'
+          ]},
+          { title: 'Networks & Security', points: [
+            'LAN: Local Area Network (single site). WAN: Wide Area Network (multiple sites/countries)',
+            'Protocols: TCP/IP (data transmission), HTTP/HTTPS (web browsing), FTP (file transfer)',
+            'Encryption converts plaintext to ciphertext to protect data during transmission',
+            'Cyber threats: malware, phishing, SQL injection, DDoS attacks, brute force attacks',
+            'Firewalls filter network traffic; anti-virus software detects and removes malware'
+          ]}
+        ],
+        flashcards: [
+          { front: 'What is the difference between lossless and lossy compression?', back: 'Lossless: all original data retained, file can be perfectly reconstructed. Lossy: permanently removes some data for smaller file sizes (e.g. MP3, JPEG)' },
+          { front: 'What does CPU stand for and name its main components?', back: 'Central Processing Unit. Components: ALU (arithmetic/logic unit), Control Unit, registers, cache memory' },
+          { front: 'Convert binary 1010 to decimal', back: '1×8 + 0×4 + 1×2 + 0×1 = 8 + 2 = 10' },
+          { front: 'What is the difference between RAM and ROM?', back: 'RAM: volatile, temporary, loses data when powered off. ROM: non-volatile, permanent, stores boot instructions' },
+          { front: 'What is a Boolean data type?', back: 'A data type that can only hold one of two values: True or False (1 or 0)' },
+          { front: 'What does SQL stand for and what is it used for?', back: 'Structured Query Language — used to manage and query relational databases' },
+          { front: 'What is the difference between a while loop and a for loop?', back: 'For loop: repeats a known number of times. While loop: repeats as long as a condition is true — number of iterations may not be known in advance' },
+          { front: 'What is an algorithm?', back: 'A finite, step-by-step set of instructions for solving a problem or completing a task' }
+        ],
+        quiz: [
+          { question: 'Which search algorithm requires the list to be sorted first?', options: ['Linear search', 'Sequential search', 'Binary search', 'Bubble search'], correct: 2 },
+          { question: 'What is 1011 in binary equal to in decimal?', options: ['9', '10', '11', '13'], correct: 2 },
+          { question: 'Which loop is best when you don\'t know how many times it needs to run?', options: ['For loop', 'Count loop', 'While loop', 'Repeat loop'], correct: 2 },
+          { question: 'What does HTTP stand for?', options: ['High Transfer Text Protocol', 'Hyper Text Transfer Protocol', 'Hyper Text Transmission Program', 'High Text Transfer Program'], correct: 1 },
+          { question: 'Which of these is a cyber security threat?', options: ['Firewall', 'Phishing', 'Encryption', 'Two-factor authentication'], correct: 1 }
+        ],
+        questionsByTopic: [
+          { topic: 'Algorithms', questions: [
+            { q: 'Describe how binary search works on a sorted list of 16 items. State the maximum number of comparisons needed. [4 marks]', a: 'Start at the middle item. If it matches, done. If target is smaller, repeat on the lower half; if larger, repeat on the upper half. Keep halving until found or the list is empty. Maximum comparisons: log₂(16) = 4.' },
+            { q: 'Explain the concept of decomposition and why it is useful in programming. [3 marks]', a: 'Decomposition means breaking a complex problem into smaller, simpler sub-problems. Each part can be coded, tested and debugged independently. It also allows work to be divided among a team and makes programs easier to maintain.' }
+          ]},
+          { topic: 'Computer Systems', questions: [
+            { q: 'A file is 4 MB. How many kilobytes is this? [2 marks]', a: '4 × 1024 = 4096 KB' },
+            { q: 'Describe the fetch-decode-execute cycle. [3 marks]', a: 'Fetch: the CPU retrieves the next instruction from RAM using the address in the program counter. Decode: the control unit decodes the instruction to determine what operation to perform. Execute: the ALU carries out the instruction (e.g. arithmetic, logic, data movement).' }
+          ]}
+        ],
+        pastPapers: [
+          { board: 'AQA Computer Science', desc: 'GCSE CS (8525) papers & mark schemes', url: 'https://www.aqa.org.uk/subjects/computer-science-and-it/gcse/computer-science-8525/assessment-resources' },
+          { board: 'OCR Computer Science', desc: 'GCSE CS (J277) past papers', url: 'https://www.ocr.org.uk/qualifications/gcse/computer-science-j277-from-2020/assessment/' },
+          { board: 'Edexcel Computer Science', desc: 'GCSE CS (1CP2) past papers', url: 'https://qualifications.pearson.com/en/qualifications/edexcel-gcses/computer-science-2020.html' }
+        ]
+      }
+    };
+
+    // ── State ─────────────────────────────────────────────────────────────────
+    const params      = new URLSearchParams(window.location.search);
+    const subjectKey  = params.get('subject');
+    const subjectData = SUBJECTS[subjectKey];
+
+    let currentUser   = null;
+    let progressData  = {};
+    let currentSection = 'need-to-know';
+    let flippedCards  = new Set();
+    let quizState     = { answers: {}, submitted: false };
+
+    // Redirect back if the URL has an invalid subject
+    if (!subjectData) { window.location.href = 'student-dashboard.html'; }
+    else { document.getElementById('subject-title').textContent = subjectData.name; }
+
+    // ── Auth ──────────────────────────────────────────────────────────────────
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { window.location.href = 'index.html'; return; }
+      currentUser = user;
+      const snap = await getDoc(doc(db, 'users', user.uid));
+      if (snap.exists()) {
+        const { username, role } = snap.data();
+        if (role === 'teacher') { window.location.href = 'teacher-dashboard.html'; return; }
+        document.getElementById('username-display').textContent = username;
+      }
+      await loadProgress();
+      renderContent();
+      markViewed('needToKnow');
+    });
+
+    // ── Progress ──────────────────────────────────────────────────────────────
+    async function loadProgress() {
+      const snap = await getDoc(doc(db, 'progress', `${currentUser.uid}_${subjectKey}`));
+      progressData = snap.exists() ? snap.data() : {};
+      renderProgress();
+    }
+
+    async function saveProgress(updates) {
+      const ref = doc(db, 'progress', `${currentUser.uid}_${subjectKey}`);
+      await setDoc(ref, { userId: currentUser.uid, subject: subjectKey, ...updates }, { merge: true });
+      progressData = { ...progressData, ...updates };
+      renderProgress();
+    }
+
+    async function markViewed(key) {
+      if (!progressData[key]?.viewed) {
+        await saveProgress({ [key]: { viewed: true, lastViewed: new Date().toISOString() } });
+      }
+    }
+
+    function renderProgress() {
+      const flashTotal  = subjectData.flashcards.length;
+      const flashDone   = progressData.flashcards?.completed || 0;
+      const quizScore   = progressData.quiz?.score ?? null;
+      const visited     = ['needToKnow', 'questionsByTopic', 'pastPapers'].filter(k => progressData[k]?.viewed).length;
+
+      // Stat cards
+      const statsEl = document.getElementById('progress-stats');
+      statsEl.innerHTML = '';
+      [
+        { value: `${flashDone}/${flashTotal}`, label: 'Flashcards flipped' },
+        { value: quizScore !== null ? `${quizScore}%` : '—', label: 'Best quiz score' },
+        { value: `${visited}/3`, label: 'Topics visited' }
+      ].forEach(({ value, label }) => {
+        const card = document.createElement('div'); card.className = 'stat-card';
+        const val  = document.createElement('div'); val.className = 'stat-value'; val.textContent = value;
+        const lbl  = document.createElement('div'); lbl.className = 'stat-label'; lbl.textContent = label;
+        card.append(val, lbl);
+        statsEl.appendChild(card);
+      });
+
+      // Overall bar
+      const total  = flashTotal + 100 + 3;
+      const earned = flashDone + (quizScore || 0) + visited;
+      const pct    = Math.round((earned / total) * 100);
+      document.getElementById('overall-pct').textContent = `${pct}%`;
+      document.getElementById('overall-bar').style.width  = `${pct}%`;
+
+      // Activity list
+      const activities = [];
+      const p = progressData;
+      if (p.needToKnow?.viewed)       activities.push({ icon: '📋', name: 'Need to Know',        badge: 'Viewed',   cls: 'badge-blue',   date: p.needToKnow.lastViewed });
+      if (p.flashcards?.completed)    activities.push({ icon: '🃏', name: `Flashcards (${p.flashcards.completed}/${flashTotal})`, badge: p.flashcards.completed >= flashTotal ? 'All done!' : 'In progress', cls: p.flashcards.completed >= flashTotal ? 'badge-green' : 'badge-yellow', date: p.flashcards.lastAttempted });
+      if (p.quiz?.attempts)           activities.push({ icon: '✅', name: 'Quiz',                 badge: `${p.quiz.score}% · ${p.quiz.attempts} attempt${p.quiz.attempts > 1 ? 's' : ''}`, cls: p.quiz.score >= 80 ? 'badge-green' : 'badge-yellow', date: p.quiz.lastAttempted });
+      if (p.questionsByTopic?.viewed) activities.push({ icon: '📝', name: 'Questions by Topic',   badge: 'Viewed',   cls: 'badge-blue',   date: p.questionsByTopic.lastViewed });
+      if (p.pastPapers?.viewed)       activities.push({ icon: '📄', name: 'Past Papers',          badge: 'Viewed',   cls: 'badge-blue',   date: p.pastPapers.lastViewed });
+
+      const actEl = document.getElementById('activity-list');
+      if (!activities.length) {
+        actEl.innerHTML = '<p class="empty" style="font-size:0.85rem">No activity yet — start revising below!</p>';
+      } else {
+        activities.sort((a, b) => new Date(b.date) - new Date(a.date));
+        actEl.innerHTML = '';
+        activities.forEach(({ icon, name, badge, cls }) => {
+          const row   = document.createElement('div'); row.className = 'activity-item';
+          const nameEl = document.createElement('span'); nameEl.textContent = `${icon}  ${name}`;
+          const bdg   = document.createElement('span'); bdg.className = `badge ${cls}`; bdg.textContent = badge;
+          row.append(nameEl, bdg);
+          actEl.appendChild(row);
+        });
+      }
+    }
+
+    // ── Sidebar navigation ────────────────────────────────────────────────────
+    document.querySelectorAll('.section-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentSection = btn.dataset.section;
+        flippedCards   = new Set();
+        quizState      = { answers: {}, submitted: false };
+        document.querySelectorAll('.section-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderContent();
+        const viewMap = { 'need-to-know': 'needToKnow', 'questions-by-topic': 'questionsByTopic', 'past-papers': 'pastPapers' };
+        if (viewMap[currentSection]) markViewed(viewMap[currentSection]);
+      });
+    });
+
+    // ── Renderers ─────────────────────────────────────────────────────────────
+    function renderContent() {
+      const area = document.getElementById('content-area');
+      area.innerHTML = '';
+      if (currentSection === 'need-to-know')        renderNeedToKnow(area);
+      else if (currentSection === 'flashcards')      renderFlashcards(area);
+      else if (currentSection === 'quiz')            renderQuiz(area);
+      else if (currentSection === 'questions-by-topic') renderQuestionsByTopic(area);
+      else if (currentSection === 'past-papers')     renderPastPapers(area);
+    }
+
+    function makeHeader(h3Text, pText) {
+      const hdr = document.createElement('div'); hdr.className = 'content-header';
+      const h3  = document.createElement('h3'); h3.textContent = h3Text;
+      const p   = document.createElement('p');  p.textContent  = pText;
+      hdr.append(h3, p);
+      return hdr;
+    }
+
+    function renderNeedToKnow(area) {
+      area.appendChild(makeHeader('📋 Stuff You Need to Know', `Key facts and concepts for ${subjectData.name}`));
+      subjectData.needToKnow.forEach(({ title, points }) => {
+        const card = document.createElement('div'); card.className = 'topic-card';
+        const h4   = document.createElement('h4'); h4.textContent = title;
+        const ul   = document.createElement('ul'); ul.className = 'topic-points';
+        points.forEach(pt => { const li = document.createElement('li'); li.textContent = pt; ul.appendChild(li); });
+        card.append(h4, ul);
+        area.appendChild(card);
+      });
+    }
+
+    function renderFlashcards(area) {
+      area.appendChild(makeHeader('🃏 Flashcards', 'Click a card to flip it and reveal the answer'));
+      const grid = document.createElement('div'); grid.className = 'flashcards-grid';
+      subjectData.flashcards.forEach((card, i) => {
+        const el    = document.createElement('div'); el.className = `flashcard${flippedCards.has(i) ? ' flipped' : ''}`;
+        const inner = document.createElement('div'); inner.className = 'flashcard-inner';
+
+        const front = document.createElement('div'); front.className = 'flashcard-front';
+        const fLbl  = document.createElement('div'); fLbl.className = 'fc-label'; fLbl.textContent = 'Question';
+        const fTxt  = document.createElement('div'); fTxt.className = 'fc-text';  fTxt.textContent = card.front;
+        const hint  = document.createElement('div'); hint.className = 'fc-hint';  hint.textContent = 'Tap to reveal';
+        front.append(fLbl, fTxt, hint);
+
+        const back  = document.createElement('div'); back.className = 'flashcard-back';
+        const bLbl  = document.createElement('div'); bLbl.className = 'fc-label'; bLbl.textContent = 'Answer';
+        const bTxt  = document.createElement('div'); bTxt.className = 'fc-text';  bTxt.textContent = card.back;
+        back.append(bLbl, bTxt);
+
+        inner.append(front, back);
+        el.appendChild(inner);
+        el.addEventListener('click', async () => {
+          el.classList.toggle('flipped');
+          flippedCards.has(i) ? flippedCards.delete(i) : flippedCards.add(i);
+          await saveProgress({ flashcards: { completed: flippedCards.size, total: subjectData.flashcards.length, lastAttempted: new Date().toISOString() } });
+        });
+        grid.appendChild(el);
+      });
+      area.appendChild(grid);
+    }
+
+    function renderQuiz(area) {
+      area.innerHTML = '';
+      area.appendChild(makeHeader('✅ Quiz', 'Answer all questions then hit Submit'));
+      const container = document.createElement('div'); container.className = 'quiz-container';
+      const letters   = ['A', 'B', 'C', 'D'];
+
+      subjectData.quiz.forEach((q, qi) => {
+        const card  = document.createElement('div'); card.className = 'quiz-card';
+        const qNum  = document.createElement('div'); qNum.className = 'q-num';  qNum.textContent = `Question ${qi + 1} of ${subjectData.quiz.length}`;
+        const qText = document.createElement('div'); qText.className = 'q-text'; qText.textContent = q.question;
+        const opts  = document.createElement('div'); opts.className = 'quiz-options';
+
+        q.options.forEach((opt, oi) => {
+          const o   = document.createElement('div'); o.className = 'quiz-option';
+          if (quizState.answers[qi] === oi) o.classList.add('selected');
+          if (quizState.submitted) {
+            if (oi === q.correct)              o.classList.add('correct');
+            else if (quizState.answers[qi] === oi) o.classList.add('wrong');
+          }
+          const ltr = document.createElement('span'); ltr.className = 'opt-letter'; ltr.textContent = letters[oi];
+          const txt = document.createElement('span'); txt.textContent = opt;
+          o.append(ltr, txt);
+          if (!quizState.submitted) o.addEventListener('click', () => { quizState.answers[qi] = oi; renderQuiz(area); });
+          opts.appendChild(o);
+        });
+        card.append(qNum, qText, opts);
+        container.appendChild(card);
+      });
+
+      if (!quizState.submitted) {
+        const answered = Object.keys(quizState.answers).length;
+        const btn = document.createElement('button'); btn.className = 'quiz-submit';
+        btn.textContent = `Submit Quiz (${answered}/${subjectData.quiz.length} answered)`;
+        btn.disabled = answered < subjectData.quiz.length;
+        btn.addEventListener('click', async () => {
+          quizState.submitted = true;
+          const correct = subjectData.quiz.filter((q, i) => quizState.answers[i] === q.correct).length;
+          const score   = Math.round((correct / subjectData.quiz.length) * 100);
+          const prev    = progressData.quiz?.score || 0;
+          await saveProgress({ quiz: { score: Math.max(score, prev), attempts: (progressData.quiz?.attempts || 0) + 1, lastAttempted: new Date().toISOString() } });
+          renderQuiz(area);
+        });
+        container.appendChild(btn);
+      } else {
+        const correct = subjectData.quiz.filter((q, i) => quizState.answers[i] === q.correct).length;
+        const score   = Math.round((correct / subjectData.quiz.length) * 100);
+        const result  = document.createElement('div'); result.className = 'quiz-result';
+        const scoreEl = document.createElement('div'); scoreEl.className = 'result-score'; scoreEl.textContent = `${score}%`;
+        const lbl     = document.createElement('div'); lbl.className = 'result-label'; lbl.textContent = `${correct} out of ${subjectData.quiz.length} correct`;
+        const retake  = document.createElement('button'); retake.className = 'retake-btn'; retake.textContent = 'Retake Quiz';
+        retake.addEventListener('click', () => { quizState = { answers: {}, submitted: false }; renderQuiz(area); });
+        result.append(scoreEl, lbl, retake);
+        container.appendChild(result);
+      }
+      area.appendChild(container);
+    }
+
+    function renderQuestionsByTopic(area) {
+      area.appendChild(makeHeader('📝 Questions by Topic', 'Attempt each question, then reveal the model answer'));
+      subjectData.questionsByTopic.forEach(({ topic, questions }) => {
+        const sec = document.createElement('div'); sec.className = 'questions-topic';
+        const h4  = document.createElement('h4'); h4.textContent = topic;
+        sec.appendChild(h4);
+        questions.forEach(({ q, a }) => {
+          const item = document.createElement('div'); item.className = 'question-item';
+          const qEl  = document.createElement('p');   qEl.textContent = q;
+          const btn  = document.createElement('button'); btn.className = 'show-answer-btn'; btn.textContent = 'Show answer';
+          const ans  = document.createElement('div'); ans.className = 'answer-box hidden'; ans.textContent = a;
+          btn.addEventListener('click', () => {
+            const showing = !ans.classList.contains('hidden');
+            ans.classList.toggle('hidden', showing);
+            btn.textContent = showing ? 'Show answer' : 'Hide answer';
+          });
+          item.append(qEl, btn, ans);
+          sec.appendChild(item);
+        });
+        area.appendChild(sec);
+      });
+    }
+
+    function renderPastPapers(area) {
+      area.appendChild(makeHeader('📄 Past Papers', 'Check with your teacher which exam board you sit'));
+      const grid = document.createElement('div'); grid.className = 'papers-grid';
+      subjectData.pastPapers.forEach(({ board, desc, url }) => {
+        const a    = document.createElement('a'); a.className = 'paper-card'; a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+        const icon = document.createElement('div'); icon.className = 'paper-icon'; icon.textContent = '📄';
+        const name = document.createElement('div'); name.className = 'paper-name'; name.textContent = board;
+        const dsc  = document.createElement('div'); dsc.className  = 'paper-desc'; dsc.textContent  = desc;
+        a.append(icon, name, dsc);
+        grid.appendChild(a);
+      });
+      area.appendChild(grid);
+    }
+
+    // ── Logout ────────────────────────────────────────────────────────────────
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = 'index.html';
+    });
+  </script>
+</body>
+</html>

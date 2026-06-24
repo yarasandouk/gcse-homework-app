@@ -4,83 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Student Dashboard | Smash GCSE</title>
+  <link rel="stylesheet" href="shared.css" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      min-height: 100vh;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      color: #fff;
-    }
-    nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1rem 2rem;
-      background: rgba(0,0,0,0.2);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
-    .logo { font-size: 1.2rem; font-weight: 800; }
-    .logo span { color: #7eb8f7; }
-    .nav-right { display: flex; align-items: center; gap: 1rem; font-size: 0.9rem; color: rgba(255,255,255,0.7); }
-    .logout-btn {
-      padding: 0.4rem 1rem;
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.15);
-      color: #fff;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.85rem;
-      font-weight: 600;
-      transition: background 0.2s;
-    }
-    .logout-btn:hover { background: rgba(255,255,255,0.2); }
-    main { padding: 2rem; max-width: 1100px; margin: 0 auto; }
-    .welcome { margin-bottom: 2rem; }
-    .welcome h1 { font-size: 1.8rem; font-weight: 800; }
-    .welcome p { color: rgba(255,255,255,0.55); margin-top: 0.3rem; }
-    .section-title {
-      font-size: 0.8rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: rgba(255,255,255,0.5);
-      margin-bottom: 1rem;
-    }
-    .subjects-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2.5rem;
-    }
-    .subject-card {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 12px;
-      padding: 1.2rem 0.8rem;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      user-select: none;
-    }
+    main { max-width: 1100px; }
+    .subjects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 2.5rem; }
+    .subject-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1.2rem 0.8rem; text-align: center; cursor: pointer; transition: all 0.2s; user-select: none; }
     .subject-card:hover { background: rgba(255,255,255,0.12); transform: translateY(-2px); }
     .subject-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
     .subject-name { font-size: 0.85rem; font-weight: 600; }
     .homework-list { display: flex; flex-direction: column; gap: 0.75rem; }
-    .hw-card {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 10px;
-      padding: 1rem 1.2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-    }
+    .hw-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 1rem 1.2rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
     .hw-info .hw-subject { font-weight: 700; font-size: 0.95rem; }
     .hw-info .hw-title { font-size: 0.85rem; color: rgba(255,255,255,0.55); margin-top: 0.2rem; }
     .hw-due { font-size: 0.78rem; background: rgba(255,213,0,0.12); color: #ffd54f; padding: 0.25rem 0.7rem; border-radius: 20px; white-space: nowrap; }
-    .empty { color: rgba(255,255,255,0.35); font-size: 0.9rem; padding: 0.5rem 0; }
   </style>
 </head>
 <body>
@@ -99,10 +35,10 @@
 
     <p class="section-title">Subjects</p>
     <div class="subjects-grid">
-      <div class="subject-card"><div class="subject-icon">🧬</div><div class="subject-name">Biology</div></div>
-      <div class="subject-card"><div class="subject-icon">⚗️</div><div class="subject-name">Chemistry</div></div>
-      <div class="subject-card"><div class="subject-icon">⚡</div><div class="subject-name">Physics</div></div>
-      <div class="subject-card"><div class="subject-icon">💻</div><div class="subject-name">Computer Science</div></div>
+      <div class="subject-card" data-subject="biology"><div class="subject-icon">🧬</div><div class="subject-name">Biology</div></div>
+      <div class="subject-card" data-subject="chemistry"><div class="subject-icon">⚗️</div><div class="subject-name">Chemistry</div></div>
+      <div class="subject-card" data-subject="physics"><div class="subject-icon">⚡</div><div class="subject-name">Physics</div></div>
+      <div class="subject-card" data-subject="computerScience"><div class="subject-icon">💻</div><div class="subject-name">Computer Science</div></div>
     </div>
 
     <p class="section-title">Homework Due</p>
@@ -112,22 +48,9 @@
   </main>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, getDocs, orderBy, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBJNEAXgj8llBi52GV3-rPI5I6ch_3_FFI",
-      authDomain: "gcse-revision-b75d3.firebaseapp.com",
-      projectId: "gcse-revision-b75d3",
-      storageBucket: "gcse-revision-b75d3.firebasestorage.app",
-      messagingSenderId: "904812528723",
-      appId: "1:904812528723:web:647fa52a3311af519472a6"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+    import { auth, db } from './firebase-config.js';
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { doc, getDoc, collection, getDocs, orderBy, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     onAuthStateChanged(auth, async (user) => {
       if (!user) { window.location.href = 'index.html'; return; }
@@ -174,6 +97,12 @@
         list.innerHTML = '<p class="empty">Failed to load homework.</p>';
       }
     }
+
+    document.querySelectorAll('.subject-card').forEach(card => {
+      card.addEventListener('click', () => {
+        window.location.href = `subject.html?subject=${card.dataset.subject}`;
+      });
+    });
 
     document.getElementById('logout-btn').addEventListener('click', async () => {
       await signOut(auth);
