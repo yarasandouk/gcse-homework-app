@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Set Up Your Subjects | Smash GCSE</title>
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    main { max-width: 680px; padding-top: 2.5rem; padding-bottom: 3rem; }
+
+    .setup-intro { margin-bottom: 2rem; }
+    .setup-intro h1 { font-size: 1.6rem; font-weight: 800; }
+    .setup-intro p  { color: rgba(255,255,255,0.5); margin-top: 0.4rem; font-size: 0.93rem; }
+
+    .subject-block {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 1.3rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .subject-block-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 1.1rem;
+    }
+    .subject-block-header span { font-size: 1.4rem; }
+
+    .choice-row { margin-bottom: 0.9rem; }
+    .choice-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 0.5rem;
+    }
+    .toggle-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .toggle-btn {
+      padding: 0.5rem 1.1rem;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.55);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.87rem;
+      font-weight: 600;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .toggle-btn:hover { background: rgba(255,255,255,0.11); color: #fff; }
+    .toggle-btn.active {
+      background: rgba(126,184,247,0.18);
+      border-color: rgba(126,184,247,0.5);
+      color: #7eb8f7;
+    }
+
+    .save-btn {
+      width: 100%;
+      margin-top: 1.5rem;
+      padding: 0.85rem;
+      background: #0f3460;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-family: inherit;
+    }
+    .save-btn:hover { background: #1a4a7a; }
+
+    .error-msg { color: #e57373; font-size: 0.85rem; margin-top: 0.75rem; text-align: center; }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="logo">📚 Smash<span>GCSE</span></div>
+    <div class="nav-right">
+      <button class="logout-btn" id="logout-btn">Log Out</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="setup-intro">
+      <h1>Set up your subjects 📋</h1>
+      <p>Tell us which courses you're taking so we can show you the right content.</p>
+    </div>
+
+    <!-- Biology -->
+    <div class="subject-block">
+      <div class="subject-block-header"><span>🧬</span> Biology</div>
+      <div class="choice-row">
+        <div class="choice-label">Science type</div>
+        <div class="toggle-group" data-subject="biology" data-field="scienceType">
+          <button class="toggle-btn active" data-value="combined">Combined Science</button>
+          <button class="toggle-btn"        data-value="triple">Triple Science</button>
+        </div>
+      </div>
+      <div class="choice-row">
+        <div class="choice-label">Tier</div>
+        <div class="toggle-group" data-subject="biology" data-field="tier">
+          <button class="toggle-btn active" data-value="higher">Higher</button>
+          <button class="toggle-btn"        data-value="foundation">Foundation</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chemistry -->
+    <div class="subject-block">
+      <div class="subject-block-header"><span>⚗️</span> Chemistry</div>
+      <div class="choice-row">
+        <div class="choice-label">Science type</div>
+        <div class="toggle-group" data-subject="chemistry" data-field="scienceType">
+          <button class="toggle-btn active" data-value="combined">Combined Science</button>
+          <button class="toggle-btn"        data-value="triple">Triple Science</button>
+        </div>
+      </div>
+      <div class="choice-row">
+        <div class="choice-label">Tier</div>
+        <div class="toggle-group" data-subject="chemistry" data-field="tier">
+          <button class="toggle-btn active" data-value="higher">Higher</button>
+          <button class="toggle-btn"        data-value="foundation">Foundation</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Physics -->
+    <div class="subject-block">
+      <div class="subject-block-header"><span>⚡</span> Physics</div>
+      <div class="choice-row">
+        <div class="choice-label">Science type</div>
+        <div class="toggle-group" data-subject="physics" data-field="scienceType">
+          <button class="toggle-btn active" data-value="combined">Combined Science</button>
+          <button class="toggle-btn"        data-value="triple">Triple Science</button>
+        </div>
+      </div>
+      <div class="choice-row">
+        <div class="choice-label">Tier</div>
+        <div class="toggle-group" data-subject="physics" data-field="tier">
+          <button class="toggle-btn active" data-value="higher">Higher</button>
+          <button class="toggle-btn"        data-value="foundation">Foundation</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Computer Science -->
+    <div class="subject-block">
+      <div class="subject-block-header"><span>💻</span> Computer Science</div>
+      <div class="choice-row">
+        <div class="choice-label">Tier</div>
+        <div class="toggle-group" data-subject="computerScience" data-field="tier">
+          <button class="toggle-btn active" data-value="higher">Higher</button>
+          <button class="toggle-btn"        data-value="foundation">Foundation</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="save-btn" id="save-btn">Save & Continue</button>
+    <p class="error-msg" id="error-msg"></p>
+  </main>
+
+  <script type="module">
+    import { auth, db } from './firebase-config.js';
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const isEditing = new URLSearchParams(window.location.search).has('edit');
+
+    // Default preferences — mirrors the active toggle buttons
+    const preferences = {
+      biology:         { scienceType: 'combined', tier: 'higher' },
+      chemistry:       { scienceType: 'combined', tier: 'higher' },
+      physics:         { scienceType: 'combined', tier: 'higher' },
+      computerScience: { tier: 'higher' }
+    };
+
+    let currentUserId = null;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { window.location.href = 'index.html'; return; }
+      const snap = await getDoc(doc(db, 'users', user.uid));
+      if (snap.exists() && snap.data().role === 'teacher') {
+        window.location.href = 'teacher-dashboard.html'; return;
+      }
+
+      currentUserId = user.uid;
+
+      // If preferences already exist and we're not editing, skip setup
+      if (!isEditing && snap.exists() && snap.data().subjectPreferences) {
+        window.location.href = 'student-dashboard.html'; return;
+      }
+
+      // Pre-fill toggles if editing existing preferences
+      if (isEditing && snap.exists() && snap.data().subjectPreferences) {
+        const saved = snap.data().subjectPreferences;
+        Object.assign(preferences, saved);
+        applyPreferencesToUI();
+      }
+    });
+
+    function applyPreferencesToUI() {
+      document.querySelectorAll('.toggle-group').forEach(group => {
+        const subject = group.dataset.subject;
+        const field   = group.dataset.field;
+        const value   = preferences[subject]?.[field];
+        if (!value) return;
+        group.querySelectorAll('.toggle-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.value === value);
+        });
+      });
+    }
+
+    // Handle toggle clicks
+    document.querySelectorAll('.toggle-group').forEach(group => {
+      group.querySelectorAll('.toggle-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const subject = group.dataset.subject;
+          const field   = group.dataset.field;
+          const value   = btn.dataset.value;
+
+          // Update preferences object
+          if (!preferences[subject]) preferences[subject] = {};
+          preferences[subject][field] = value;
+
+          // Update active state within this group only
+          group.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+        });
+      });
+    });
+
+    // Save
+    document.getElementById('save-btn').addEventListener('click', async () => {
+      const errorEl = document.getElementById('error-msg');
+      errorEl.textContent = '';
+      try {
+        await updateDoc(doc(db, 'users', currentUserId), { subjectPreferences: preferences });
+        window.location.href = 'student-dashboard.html';
+      } catch {
+        errorEl.textContent = 'Failed to save. Please try again.';
+      }
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = 'index.html';
+    });
+  </script>
+</body>
+</html>

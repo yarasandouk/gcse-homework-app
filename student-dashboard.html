@@ -12,6 +12,9 @@
     .subject-card:hover { background: rgba(255,255,255,0.12); transform: translateY(-2px); }
     .subject-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
     .subject-name { font-size: 0.85rem; font-weight: 600; }
+    .subject-pref { font-size: 0.72rem; color: rgba(126,184,247,0.8); margin-top: 0.3rem; }
+    .edit-prefs-link { font-size: 0.8rem; color: rgba(255,255,255,0.35); text-decoration: none; margin-left: auto; display: block; text-align: right; margin-bottom: 0.5rem; }
+    .edit-prefs-link:hover { color: rgba(255,255,255,0.6); }
     .homework-list { display: flex; flex-direction: column; gap: 0.75rem; }
     .hw-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 1rem 1.2rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
     .hw-info .hw-subject { font-weight: 700; font-size: 0.95rem; }
@@ -34,6 +37,7 @@
     </div>
 
     <p class="section-title">Subjects</p>
+    <a class="edit-prefs-link" href="setup.html?edit">✏️ Edit subject choices</a>
     <div class="subjects-grid">
       <div class="subject-card" data-subject="biology"><div class="subject-icon">🧬</div><div class="subject-name">Biology</div></div>
       <div class="subject-card" data-subject="chemistry"><div class="subject-icon">⚗️</div><div class="subject-name">Chemistry</div></div>
@@ -59,13 +63,35 @@
       currentUserId = user.uid;
       const snap = await getDoc(doc(db, 'users', user.uid));
       if (snap.exists()) {
-        const { username, role } = snap.data();
+        const { username, role, subjectPreferences } = snap.data();
         if (role === 'teacher') { window.location.href = 'teacher-dashboard.html'; return; }
+
+        // Redirect to setup if preferences haven't been set yet
+        if (!subjectPreferences) { window.location.href = 'setup.html'; return; }
+
         document.getElementById('username-display').textContent = username;
         document.getElementById('welcome-name').textContent = username;
+        applyPreferenceBadges(subjectPreferences);
       }
       loadHomework();
     });
+
+    function applyPreferenceBadges(prefs) {
+      document.querySelectorAll('.subject-card').forEach(card => {
+        const subject = card.dataset.subject;
+        const pref    = prefs[subject];
+        if (!pref) return;
+        const badge = document.createElement('div');
+        badge.className = 'subject-pref';
+        if (pref.scienceType) {
+          const type = pref.scienceType === 'triple' ? 'Triple' : 'Combined';
+          badge.textContent = `${type} · ${pref.tier === 'higher' ? 'Higher' : 'Foundation'}`;
+        } else {
+          badge.textContent = pref.tier === 'higher' ? 'Higher' : 'Foundation';
+        }
+        card.appendChild(badge);
+      });
+    }
 
     async function loadHomework() {
       const list = document.getElementById('homework-list');

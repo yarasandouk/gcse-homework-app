@@ -280,6 +280,14 @@
           <div class="field full"><label>Front (question)</label><input id="cf-front" placeholder="Enter the question" /></div>
           <div class="field full"><label>Back (answer)</label><textarea id="cf-back" placeholder="Enter the answer"></textarea></div>
         </div>
+        <div class="field full"><label>Visible to</label>
+          <div style="display:flex;gap:1rem;flex-wrap:wrap;font-size:0.87rem;margin-top:0.2rem">
+            <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer"><input type="checkbox" class="vis-check" value="combined" checked> Combined Science</label>
+            <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer"><input type="checkbox" class="vis-check" value="triple" checked> Triple Science</label>
+            <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer"><input type="checkbox" class="vis-check" value="higher" checked> Higher</label>
+            <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer"><input type="checkbox" class="vis-check" value="foundation" checked> Foundation</label>
+          </div>
+        </div>
         <button class="submit-btn" id="content-submit" style="margin-top:0.75rem">Add Flashcard</button>`,
       quiz: `
         <div class="form-grid">
@@ -292,12 +300,28 @@
             <label>Correct answer</label>
             <select id="cf-correct"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select>
           </div>
+          <div class="field full"><label>Visible to</label>
+            <div style="display:flex;gap:1rem;flex-wrap:wrap;font-size:0.87rem;margin-top:0.2rem">
+              <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer"><input type="checkbox" class="vis-check" value="combined" checked> Combined Science</label>
+              <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer"><input type="checkbox" class="vis-check" value="triple" checked> Triple Science</label>
+              <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer"><input type="checkbox" class="vis-check" value="higher" checked> Higher</label>
+              <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer"><input type="checkbox" class="vis-check" value="foundation" checked> Foundation</label>
+            </div>
+          </div>
         </div>
         <button class="submit-btn" id="content-submit" style="margin-top:0.75rem">Add Quiz Question</button>`,
       note: `
         <div class="form-grid">
           <div class="field full"><label>Topic title</label><input id="cf-topic" placeholder="e.g. Cell Biology" /></div>
           <div class="field full"><label>Bullet point</label><input id="cf-point" placeholder="Enter a key fact or concept" /></div>
+          <div class="field full"><label>Visible to</label>
+            <div style="display:flex;gap:1rem;flex-wrap:wrap;font-size:0.87rem;margin-top:0.2rem">
+              <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer"><input type="checkbox" class="vis-check" value="combined" checked> Combined Science</label>
+              <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer"><input type="checkbox" class="vis-check" value="triple" checked> Triple Science</label>
+              <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer"><input type="checkbox" class="vis-check" value="higher" checked> Higher</label>
+              <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer"><input type="checkbox" class="vis-check" value="foundation" checked> Foundation</label>
+            </div>
+          </div>
         </div>
         <button class="submit-btn" id="content-submit" style="margin-top:0.75rem">Add Point</button>`,
       examQuestion: `
@@ -305,6 +329,14 @@
           <div class="field full"><label>Topic</label><input id="cf-topic" placeholder="e.g. Genetics" /></div>
           <div class="field full"><label>Question</label><textarea id="cf-question" placeholder="Enter the exam question"></textarea></div>
           <div class="field full"><label>Model answer</label><textarea id="cf-answer" placeholder="Enter the model answer"></textarea></div>
+          <div class="field full"><label>Visible to</label>
+            <div style="display:flex;gap:1rem;flex-wrap:wrap;font-size:0.87rem;margin-top:0.2rem">
+              <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer"><input type="checkbox" class="vis-check" value="combined" checked> Combined Science</label>
+              <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer"><input type="checkbox" class="vis-check" value="triple" checked> Triple Science</label>
+              <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer"><input type="checkbox" class="vis-check" value="higher" checked> Higher</label>
+              <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer"><input type="checkbox" class="vis-check" value="foundation" checked> Foundation</label>
+            </div>
+          </div>
         </div>
         <button class="submit-btn" id="content-submit" style="margin-top:0.75rem">Add Question</button>`
     };
@@ -349,7 +381,11 @@
       successEl.textContent = '';
       errorEl.textContent   = '';
 
-      const base = { subject, teacherId: currentUserId, createdAt: new Date().toISOString() };
+      const allTags = ['combined','triple','higher','foundation'];
+      const checked = Array.from(document.querySelectorAll('.vis-check:checked')).map(c => c.value);
+      // If all four are checked, store empty tags (means visible to everyone)
+      const tags = checked.length === allTags.length ? [] : checked;
+      const base = { subject, teacherId: currentUserId, tags, createdAt: new Date().toISOString() };
 
       try {
         let payload = null;

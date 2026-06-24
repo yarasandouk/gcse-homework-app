@@ -427,6 +427,160 @@
       }
     };
 
+    // ── Extra tagged content (Triple / Higher / Foundation specific) ──────────
+    // tags: ['triple'] = triple science only | ['higher'] = higher tier only
+    // No tags (or []) = shown to all students
+    const EXTRA_CONTENT = {
+      biology: {
+        needToKnow: [
+          { tags: ['triple'], title: 'Nervous System Coordination', points: [
+            'The CNS (central nervous system) consists of the brain and spinal cord',
+            'Sensory neurons carry impulses from receptors to the CNS; motor neurons carry impulses from the CNS to effectors',
+            'Reflex arcs provide rapid, automatic responses — the impulse does not pass through the brain',
+            'Synapses transmit signals between neurons using chemical neurotransmitters',
+            'The brain has distinct regions: cerebral cortex (thinking), cerebellum (balance), medulla (breathing/heart rate)'
+          ]},
+          { tags: ['triple'], title: 'Kidney Function & Osmoregulation', points: [
+            'Kidneys filter blood by ultrafiltration — high pressure forces small molecules into the Bowman\'s capsule',
+            'Selective reabsorption returns glucose, water, and useful ions back to the blood',
+            'Urea is formed by deamination of excess amino acids in the liver and excreted in urine',
+            'ADH (antidiuretic hormone) increases water reabsorption in the kidney tubules',
+            'More ADH → more concentrated urine; Less ADH → more dilute urine'
+          ]},
+          { tags: ['higher'], title: 'Magnification & Calculations', points: [
+            'Magnification = image size ÷ actual size',
+            'To calculate actual size: actual size = image size ÷ magnification',
+            'Always use the same units — convert mm to µm if needed (1 mm = 1000 µm)',
+            'Percentage change = (change ÷ original) × 100',
+            'Scale bars tell you the real size represented by a length on a diagram'
+          ]}
+        ],
+        flashcards: [
+          { tags: ['triple'], front: 'What is the role of ADH in the kidney?', back: 'ADH (antidiuretic hormone) increases water reabsorption in the kidney tubules, producing more concentrated urine. Released by the pituitary gland when blood water concentration is low.' },
+          { tags: ['triple'], front: 'What is a synapse?', back: 'A junction between two neurons where electrical impulses cannot cross directly. Neurotransmitters are released, diffuse across the gap, and bind to receptors on the next neuron.' },
+          { tags: ['triple'], front: 'Describe ultrafiltration in the kidney', back: 'High blood pressure in the glomerulus forces small molecules (water, urea, glucose, ions) into the Bowman\'s capsule. Large molecules (proteins, red blood cells) stay in the blood.' },
+          { tags: ['higher'], front: 'A cell is 0.05 mm wide and appears 5 mm in a diagram. What is the magnification?', back: 'Magnification = image ÷ actual = 5 ÷ 0.05 = ×100' },
+          { tags: ['higher'], front: 'What is a monoclonal antibody and give one use?', back: 'Antibodies produced from a single clone of identical B-lymphocytes. Uses: pregnancy tests, cancer targeted therapy, disease diagnosis.' }
+        ],
+        quiz: [
+          { tags: ['triple'], question: 'What is the function of ADH?', options: ['Increases blood glucose', 'Decreases water reabsorption in kidneys', 'Increases water reabsorption in kidneys', 'Stimulates insulin release'], correct: 2 },
+          { tags: ['higher'], question: 'A cell appears 4 mm in a micrograph and its actual diameter is 0.02 mm. What is the magnification?', options: ['×20', '×200', '×2000', '×20000'], correct: 1 }
+        ],
+        questionsByTopic: [
+          { tags: ['triple'], topic: 'Kidney & Nervous System', questions: [
+            { q: 'Explain how the kidney regulates water content of the blood. [4 marks]', a: 'The kidney filters blood; selective reabsorption returns water to the blood. ADH controls how much water is reabsorbed in the tubules. When blood water concentration is low, more ADH is released → more water reabsorbed → concentrated urine. When blood water is high, less ADH → dilute urine.' }
+          ]},
+          { tags: ['higher'], topic: 'Calculations', questions: [
+            { q: 'A student views a cell under a microscope. The cell appears 6 mm wide. The actual width is 0.03 mm. Calculate the magnification and show your working. [3 marks]', a: 'Magnification = image size ÷ actual size = 6 ÷ 0.03 = ×200' }
+          ]}
+        ]
+      },
+      chemistry: {
+        needToKnow: [
+          { tags: ['triple'], title: 'Organic Chemistry', points: [
+            'Alkanes: saturated hydrocarbons, general formula CₙH₂ₙ₊₂ (e.g. methane CH₄, ethane C₂H₆)',
+            'Alkenes: unsaturated, contain a C=C double bond, general formula CₙH₂ₙ',
+            'Test for alkenes: bromine water decolourises (orange → colourless) due to addition reaction',
+            'Alcohols contain an -OH group (e.g. ethanol C₂H₅OH); used as fuels and solvents',
+            'Carboxylic acids contain a -COOH group; react with alcohols to form esters and water'
+          ]},
+          { tags: ['triple'], title: 'Chemical Analysis & Ion Tests', points: [
+            'Flame tests: Li⁺ = crimson, Na⁺ = yellow, K⁺ = lilac, Ca²⁺ = orange-red, Cu²⁺ = green',
+            'Add NaOH solution: Fe²⁺ = green precipitate, Fe³⁺ = brown precipitate, Cu²⁺ = blue precipitate',
+            'Test for chloride ions: add dilute HNO₃ then AgNO₃ → white precipitate',
+            'Test for sulfate ions: add dilute HCl then BaCl₂ → white precipitate',
+            'Test for carbonate ions: add dilute acid → fizzing, CO₂ turns limewater milky'
+          ]},
+          { tags: ['higher'], title: 'Titration & Concentration Calculations', points: [
+            'Titration is used to find the exact concentration of an acid or alkali',
+            'Moles = concentration × volume (volume must be in dm³; divide cm³ by 1000)',
+            'Use the mole ratio from the balanced equation to link moles of acid and base',
+            'Concentration = moles ÷ volume (in dm³)',
+            'Always repeat titrations and calculate a mean concordant titre (within 0.10 cm³)'
+          ]}
+        ],
+        flashcards: [
+          { tags: ['triple'], front: 'What is the test for an alkene?', back: 'Add bromine water — alkenes decolourise it (orange-brown → colourless) due to an addition reaction across the C=C double bond.' },
+          { tags: ['triple'], front: 'What colour flame does potassium produce?', back: 'Lilac (pale purple) flame' },
+          { tags: ['triple'], front: 'What precipitate forms when NaOH is added to Cu²⁺ ions?', back: 'A blue precipitate of copper(II) hydroxide, Cu(OH)₂' },
+          { tags: ['higher'], front: 'How do you calculate the volume of acid needed in a titration?', back: '1. Find moles of base = concentration × volume (in dm³). 2. Use mole ratio from equation to find moles of acid. 3. Volume of acid = moles ÷ concentration.' },
+          { tags: ['higher'], front: 'Write the half equation for copper depositing at the cathode during electrolysis', back: 'Cu²⁺ + 2e⁻ → Cu (copper ions gain electrons — this is reduction)' }
+        ],
+        quiz: [
+          { tags: ['triple'], question: 'What is the test for an alkene?', options: ['Add universal indicator', 'Add bromine water — it decolourises', 'Add limewater — it turns milky', 'Add sodium — fizzes'], correct: 1 },
+          { tags: ['higher'], question: 'What is the concentration of a solution containing 0.2 mol dissolved in 500 cm³?', options: ['0.1 mol/dm³', '0.4 mol/dm³', '0.2 mol/dm³', '100 mol/dm³'], correct: 1 }
+        ],
+        questionsByTopic: [
+          { tags: ['triple'], topic: 'Ion Tests', questions: [
+            { q: 'Describe a test to identify the presence of Fe³⁺ ions in solution. State the expected result. [2 marks]', a: 'Add sodium hydroxide solution. A brown (rust-coloured) precipitate of iron(III) hydroxide forms.' }
+          ]},
+          { tags: ['higher'], topic: 'Titration Calculations', questions: [
+            { q: '25.0 cm³ of NaOH was neutralised by 20.0 cm³ of 0.5 mol/dm³ HCl. Calculate the concentration of the NaOH. [4 marks]', a: 'Moles HCl = 0.5 × (20/1000) = 0.01 mol. Equation: HCl + NaOH → NaCl + H₂O (1:1 ratio). Moles NaOH = 0.01 mol. Concentration NaOH = 0.01 ÷ (25/1000) = 0.4 mol/dm³' }
+          ]}
+        ]
+      },
+      physics: {
+        needToKnow: [
+          { tags: ['triple'], title: 'Astrophysics', points: [
+            'Stars form from nebulae (clouds of gas and dust) pulled together by gravity',
+            'Main sequence stars fuse hydrogen to helium — the radiation pressure balances gravitational collapse',
+            'Sun\'s life cycle: nebula → protostar → main sequence → red giant → white dwarf → black dwarf',
+            'Massive stars: nebula → protostar → main sequence → red supergiant → supernova → neutron star / black hole',
+            'Hubble\'s Law: galaxies recede from us; speed of recession ∝ distance (evidence for the Big Bang)'
+          ]},
+          { tags: ['higher'], title: 'Nuclear Decay & Equations', points: [
+            'Alpha decay: nucleus loses 2 protons and 2 neutrons (helium-4 nucleus emitted); mass number −4, atomic number −2',
+            'Beta decay: a neutron turns into a proton and an electron (beta particle); mass number unchanged, atomic number +1',
+            'Gamma radiation: high-energy EM wave emitted after alpha/beta decay; no change to mass or atomic number',
+            'Nuclear fission: large nucleus (e.g. U-235) splits into two smaller nuclei + neutrons + energy (used in nuclear reactors)',
+            'Nuclear fusion: two small nuclei join to form a larger nucleus — releases huge amounts of energy (the Sun\'s energy source)'
+          ]}
+        ],
+        flashcards: [
+          { tags: ['triple'], front: 'What is the life cycle of a star like our Sun?', back: 'Nebula → Protostar → Main sequence star → Red giant → White dwarf → Black dwarf' },
+          { tags: ['triple'], front: 'What evidence supports the Big Bang theory?', back: '1. Red-shift of galaxies shows the universe is expanding. 2. Cosmic microwave background radiation — leftover heat from the Big Bang.' },
+          { tags: ['higher'], front: 'What is nuclear fission?', back: 'The splitting of a large nucleus (e.g. U-235) when struck by a neutron, releasing energy and more neutrons that trigger a chain reaction. Used in nuclear power stations.' },
+          { tags: ['higher'], front: 'What is the difference between nuclear fission and nuclear fusion?', back: 'Fission: large nucleus splits into smaller ones — used in nuclear reactors. Fusion: small nuclei join to form a larger nucleus — powers the Sun. Fusion releases more energy per kg of fuel.' }
+        ],
+        quiz: [
+          { tags: ['triple'], question: 'What type of star does the Sun become after the main sequence?', options: ['White dwarf', 'Red giant', 'Neutron star', 'Black hole'], correct: 1 },
+          { tags: ['higher'], question: 'What happens to the atomic number during beta decay?', options: ['Decreases by 2', 'Stays the same', 'Increases by 1', 'Decreases by 1'], correct: 2 }
+        ],
+        questionsByTopic: [
+          { tags: ['triple'], topic: 'Astrophysics', questions: [
+            { q: 'Describe the evidence that the universe began with a Big Bang. [3 marks]', a: '1. Red-shift: light from distant galaxies is shifted to longer wavelengths, showing galaxies are moving away — the universe is expanding. 2. Cosmic microwave background radiation (CMBR): low-level microwave radiation detected everywhere in the universe — the remnant heat from the Big Bang.' }
+          ]},
+          { tags: ['higher'], topic: 'Nuclear Physics', questions: [
+            { q: 'Explain how a chain reaction occurs in nuclear fission. [3 marks]', a: 'A neutron strikes a U-235 nucleus, causing it to split (fission) into two smaller nuclei and release 2-3 neutrons plus energy. These neutrons then strike other U-235 nuclei, triggering further fission reactions. This is a self-sustaining chain reaction.' }
+          ]}
+        ]
+      },
+      computerScience: {
+        needToKnow: [
+          { tags: ['higher'], title: 'Algorithm Complexity', points: [
+            'Time complexity measures how an algorithm\'s run time grows with input size (n)',
+            'O(1) — constant time: doesn\'t depend on input size (e.g. accessing an array by index)',
+            'O(n) — linear time: grows proportionally with n (e.g. linear search)',
+            'O(log n) — logarithmic: grows very slowly (e.g. binary search — very efficient)',
+            'O(n²) — quadratic: grows rapidly (e.g. bubble sort) — inefficient for large datasets'
+          ]}
+        ],
+        flashcards: [
+          { tags: ['higher'], front: 'What is the time complexity of binary search?', back: 'O(log n) — each step halves the search space, making it very efficient for large sorted datasets.' },
+          { tags: ['higher'], front: 'What is the difference between O(n) and O(n²)?', back: 'O(n): time grows linearly — 1000 items ≈ 1000 steps. O(n²): time grows quadratically — 1000 items ≈ 1,000,000 steps. O(n²) becomes very slow for large inputs.' },
+          { tags: ['foundation'], front: 'What does a variable store?', back: 'A named memory location that holds a value which can change during the program. Example: score = 0' }
+        ],
+        quiz: [
+          { tags: ['higher'], question: 'What is the time complexity of bubble sort?', options: ['O(1)', 'O(log n)', 'O(n)', 'O(n²)'], correct: 3 }
+        ],
+        questionsByTopic: [
+          { tags: ['higher'], topic: 'Complexity', questions: [
+            { q: 'Explain why binary search is more efficient than linear search for large datasets. [3 marks]', a: 'Linear search checks each element one by one — O(n), so 1 million items could take 1 million comparisons. Binary search halves the search space each step — O(log n), so 1 million items takes only ~20 comparisons. Binary search is far more efficient but requires a sorted list.' }
+          ]}
+        ]
+      }
+    };
+
     // ── State ─────────────────────────────────────────────────────────────────
     const params      = new URLSearchParams(window.location.search);
     const subjectKey  = params.get('subject');
@@ -438,6 +592,7 @@
     let flippedCards  = new Set();
     let quizState     = { answers: {}, submitted: false };
     let teacherContent = { flashcards: [], quiz: [], needToKnow: [], questionsByTopic: [] };
+    let studentPrefs   = null;
 
     // Redirect back if the URL has an invalid subject
     if (!subjectData) { window.location.href = 'student-dashboard.html'; }
@@ -449,11 +604,13 @@
       currentUser = user;
       const snap = await getDoc(doc(db, 'users', user.uid));
       if (snap.exists()) {
-        const { username, role } = snap.data();
+        const { username, role, subjectPreferences } = snap.data();
         if (role === 'teacher') { window.location.href = 'teacher-dashboard.html'; return; }
         document.getElementById('username-display').textContent = username;
+        studentPrefs = subjectPreferences?.[subjectKey] || null;
       }
       await Promise.all([loadProgress(), loadTeacherContent()]);
+      renderProgress(); // re-render now teacher content + prefs are both loaded
       renderContent();
       markViewed('needToKnow');
     });
@@ -506,8 +663,25 @@
       Object.entries(examsByTopic).forEach(([topic, questions]) => teacherContent.questionsByTopic.push({ topic, questions }));
     }
 
+    // Returns true if a content item is relevant to the student's preferences.
+    // Items with no tags are shown to everyone.
+    function isRelevant(item) {
+      if (!studentPrefs) return true;
+      const tags = item.tags || [];
+      const scienceTags = tags.filter(t => t === 'combined' || t === 'triple');
+      const tierTags    = tags.filter(t => t === 'higher'   || t === 'foundation');
+      const scienceOk   = scienceTags.length === 0 || scienceTags.includes(studentPrefs.scienceType);
+      const tierOk      = tierTags.length    === 0 || tierTags.includes(studentPrefs.tier);
+      return scienceOk && tierOk;
+    }
+
     function getAllContent(key) {
-      return [...(subjectData[key] || []), ...(teacherContent[key] || [])];
+      const all = [
+        ...(subjectData[key]   || []),
+        ...(EXTRA_CONTENT[subjectKey]?.[key] || []),
+        ...(teacherContent[key] || [])
+      ];
+      return all.filter(isRelevant);
     }
 
     function renderProgress() {
