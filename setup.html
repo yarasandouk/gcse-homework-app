@@ -148,18 +148,6 @@
       </div>
     </div>
 
-    <!-- Computer Science -->
-    <div class="subject-block">
-      <div class="subject-block-header"><span>💻</span> Computer Science</div>
-      <div class="choice-row">
-        <div class="choice-label">Tier</div>
-        <div class="toggle-group" data-subject="computerScience" data-field="tier">
-          <button class="toggle-btn active" data-value="higher">Higher</button>
-          <button class="toggle-btn"        data-value="foundation">Foundation</button>
-        </div>
-      </div>
-    </div>
-
     <button class="save-btn" id="save-btn">Save & Continue</button>
     <p class="error-msg" id="error-msg"></p>
   </main>
@@ -173,10 +161,9 @@
 
     // Default preferences — mirrors the active toggle buttons
     const preferences = {
-      biology:         { scienceType: 'combined', tier: 'higher' },
-      chemistry:       { scienceType: 'combined', tier: 'higher' },
-      physics:         { scienceType: 'combined', tier: 'higher' },
-      computerScience: { tier: 'higher' }
+      biology:   { scienceType: 'combined', tier: 'higher' },
+      chemistry: { scienceType: 'combined', tier: 'higher' },
+      physics:   { scienceType: 'combined', tier: 'higher' }
     };
 
     let currentUserId = null;
