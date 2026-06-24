@@ -7,6 +7,20 @@
   <link rel="stylesheet" href="shared.css" />
   <style>
     main { max-width: 900px; }
+    .content-item { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 0.9rem 1.1rem; display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 0.5rem; }
+    .content-item-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.35); margin-bottom: 0.3rem; }
+    .content-item-text { font-size: 0.87rem; color: rgba(255,255,255,0.8); line-height: 1.5; flex: 1; }
+    .delete-btn { padding: 0.3rem 0.7rem; background: rgba(229,115,115,0.1); border: 1px solid rgba(229,115,115,0.2); color: #e57373; border-radius: 6px; cursor: pointer; font-size: 0.78rem; font-weight: 600; white-space: nowrap; flex-shrink: 0; transition: background 0.15s; }
+    .delete-btn:hover { background: rgba(229,115,115,0.22); }
+    .student-item { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 0.8rem 1.1rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.5rem; }
+    .student-name  { font-size: 0.9rem; font-weight: 600; }
+    .student-email { font-size: 0.78rem; color: rgba(255,255,255,0.45); margin-top: 0.1rem; }
+    .remove-btn { padding: 0.3rem 0.7rem; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.55); border-radius: 6px; cursor: pointer; font-size: 0.78rem; font-weight: 600; white-space: nowrap; flex-shrink: 0; transition: all 0.15s; }
+    .remove-btn:hover { background: rgba(229,115,115,0.15); border-color: rgba(229,115,115,0.3); color: #e57373; }
+    .edit-btn { padding: 0.3rem 0.7rem; background: rgba(126,184,247,0.1); border: 1px solid rgba(126,184,247,0.2); color: #7eb8f7; border-radius: 6px; cursor: pointer; font-size: 0.78rem; font-weight: 600; white-space: nowrap; flex-shrink: 0; transition: background 0.15s; margin-right: 0.4rem; }
+    .edit-btn:hover { background: rgba(126,184,247,0.2); }
+    .add-row { display: flex; align-items: flex-end; gap: 0.75rem; }
+    .add-row .field { flex: 1; }
     .card {
       background: rgba(255,255,255,0.06);
       border: 1px solid rgba(255,255,255,0.1);
@@ -79,6 +93,22 @@
       <p>Manage your assignments and track student progress.</p>
     </div>
 
+    <p class="section-title">My Class</p>
+    <div class="card">
+      <div class="add-row">
+        <div class="field">
+          <label for="student-email">Add a student by their email address</label>
+          <input type="email" id="student-email" placeholder="student@example.com" />
+        </div>
+        <button class="submit-btn" id="add-student-btn" style="margin-top:0;white-space:nowrap">Add to Class</button>
+      </div>
+      <p class="success-msg" id="class-success"></p>
+      <p class="error-msg"   id="class-error"></p>
+      <div id="student-list" style="margin-top:0.75rem">
+        <p class="empty">No students in your class yet.</p>
+      </div>
+    </div>
+
     <p class="section-title">Create Assignment</p>
     <div class="card">
       <form id="assignment-form">
@@ -116,12 +146,42 @@
     <div class="assignment-list" id="assignment-list">
       <p class="empty">Loading...</p>
     </div>
+
+    <p class="section-title">Manage Content</p>
+    <div class="card">
+      <div class="form-grid">
+        <div class="field">
+          <label for="content-subject">Subject</label>
+          <select id="content-subject">
+            <option value="biology">Biology</option>
+            <option value="chemistry">Chemistry</option>
+            <option value="physics">Physics</option>
+            <option value="computerScience">Computer Science</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="content-type">Content Type</label>
+          <select id="content-type">
+            <option value="flashcard">Flashcard</option>
+            <option value="quiz">Quiz Question</option>
+            <option value="note">Need to Know Point</option>
+            <option value="examQuestion">Exam Question</option>
+          </select>
+        </div>
+      </div>
+      <div id="content-form" style="margin-top:1.2rem"></div>
+      <p class="success-msg" id="content-success"></p>
+      <p class="error-msg"   id="content-error"></p>
+    </div>
+
+    <p class="section-title">Added Content</p>
+    <div id="content-list"><p class="empty">Select a subject and type above to see your content.</p></div>
   </main>
 
   <script type="module">
     import { auth, db } from './firebase-config.js';
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { doc, getDoc, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { doc, getDoc, collection, addDoc, getDocs, query, where, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     let currentUserId = null;
 
@@ -136,6 +196,8 @@
         document.getElementById('welcome-name').textContent = username;
       }
       loadAssignments();
+      loadContentList();
+      loadMyClass();
     });
 
     async function loadAssignments() {
@@ -207,6 +269,274 @@
       await signOut(auth);
       window.location.href = 'index.html';
     });
+
+    // ── Content management ────────────────────────────────────────────────────
+    let editingDocId = null;
+    const COLLECTION_MAP = { flashcard: 'flashcards', quiz: 'quizQuestions', note: 'notePoints', examQuestion: 'examQuestions' };
+
+    const FORM_TEMPLATES = {
+      flashcard: `
+        <div class="form-grid">
+          <div class="field full"><label>Front (question)</label><input id="cf-front" placeholder="Enter the question" /></div>
+          <div class="field full"><label>Back (answer)</label><textarea id="cf-back" placeholder="Enter the answer"></textarea></div>
+        </div>
+        <button class="submit-btn" id="content-submit" style="margin-top:0.75rem">Add Flashcard</button>`,
+      quiz: `
+        <div class="form-grid">
+          <div class="field full"><label>Question</label><input id="cf-question" placeholder="Enter the question" /></div>
+          <div class="field"><label>Option A</label><input id="cf-optA" placeholder="Option A" /></div>
+          <div class="field"><label>Option B</label><input id="cf-optB" placeholder="Option B" /></div>
+          <div class="field"><label>Option C</label><input id="cf-optC" placeholder="Option C" /></div>
+          <div class="field"><label>Option D</label><input id="cf-optD" placeholder="Option D" /></div>
+          <div class="field">
+            <label>Correct answer</label>
+            <select id="cf-correct"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select>
+          </div>
+        </div>
+        <button class="submit-btn" id="content-submit" style="margin-top:0.75rem">Add Quiz Question</button>`,
+      note: `
+        <div class="form-grid">
+          <div class="field full"><label>Topic title</label><input id="cf-topic" placeholder="e.g. Cell Biology" /></div>
+          <div class="field full"><label>Bullet point</label><input id="cf-point" placeholder="Enter a key fact or concept" /></div>
+        </div>
+        <button class="submit-btn" id="content-submit" style="margin-top:0.75rem">Add Point</button>`,
+      examQuestion: `
+        <div class="form-grid">
+          <div class="field full"><label>Topic</label><input id="cf-topic" placeholder="e.g. Genetics" /></div>
+          <div class="field full"><label>Question</label><textarea id="cf-question" placeholder="Enter the exam question"></textarea></div>
+          <div class="field full"><label>Model answer</label><textarea id="cf-answer" placeholder="Enter the model answer"></textarea></div>
+        </div>
+        <button class="submit-btn" id="content-submit" style="margin-top:0.75rem">Add Question</button>`
+    };
+
+    function renderContentForm(prefill = null) {
+      const type = document.getElementById('content-type').value;
+      document.getElementById('content-form').innerHTML = FORM_TEMPLATES[type];
+      document.getElementById('content-success').textContent = '';
+      document.getElementById('content-error').textContent   = '';
+
+      if (prefill) {
+        if (type === 'flashcard') {
+          document.getElementById('cf-front').value = prefill.front || '';
+          document.getElementById('cf-back').value  = prefill.back  || '';
+        } else if (type === 'quiz') {
+          document.getElementById('cf-question').value = prefill.question || '';
+          if (prefill.options) {
+            ['cf-optA','cf-optB','cf-optC','cf-optD'].forEach((id, i) => { document.getElementById(id).value = prefill.options[i] || ''; });
+          }
+          document.getElementById('cf-correct').value = prefill.correct ?? 0;
+        } else if (type === 'note') {
+          document.getElementById('cf-topic').value = prefill.topic || '';
+          document.getElementById('cf-point').value = prefill.point || '';
+        } else if (type === 'examQuestion') {
+          document.getElementById('cf-topic').value    = prefill.topic    || '';
+          document.getElementById('cf-question').value = prefill.question || '';
+          document.getElementById('cf-answer').value   = prefill.answer   || '';
+        }
+        const btn = document.getElementById('content-submit');
+        btn.textContent = 'Save Changes';
+        btn.style.background = '#1a6e3c';
+      }
+
+      document.getElementById('content-submit').addEventListener('click', saveContent);
+    }
+
+    async function saveContent() {
+      const subject   = document.getElementById('content-subject').value;
+      const type      = document.getElementById('content-type').value;
+      const successEl = document.getElementById('content-success');
+      const errorEl   = document.getElementById('content-error');
+      successEl.textContent = '';
+      errorEl.textContent   = '';
+
+      const base = { subject, teacherId: currentUserId, createdAt: new Date().toISOString() };
+
+      try {
+        let payload = null;
+        let colName = COLLECTION_MAP[type];
+
+        if (type === 'flashcard') {
+          const front = document.getElementById('cf-front').value.trim();
+          const back  = document.getElementById('cf-back').value.trim();
+          if (!front || !back) { errorEl.textContent = 'Please fill in both fields.'; return; }
+          payload = { front, back };
+        } else if (type === 'quiz') {
+          const question = document.getElementById('cf-question').value.trim();
+          const options  = ['cf-optA','cf-optB','cf-optC','cf-optD'].map(id => document.getElementById(id).value.trim());
+          const correct  = parseInt(document.getElementById('cf-correct').value);
+          if (!question || options.some(o => !o)) { errorEl.textContent = 'Please fill in all fields.'; return; }
+          payload = { question, options, correct };
+        } else if (type === 'note') {
+          const topic = document.getElementById('cf-topic').value.trim();
+          const point = document.getElementById('cf-point').value.trim();
+          if (!topic || !point) { errorEl.textContent = 'Please fill in both fields.'; return; }
+          payload = { topic, point };
+        } else if (type === 'examQuestion') {
+          const topic    = document.getElementById('cf-topic').value.trim();
+          const question = document.getElementById('cf-question').value.trim();
+          const answer   = document.getElementById('cf-answer').value.trim();
+          if (!topic || !question || !answer) { errorEl.textContent = 'Please fill in all fields.'; return; }
+          payload = { topic, question, answer };
+        }
+
+        if (editingDocId) {
+          await updateDoc(doc(db, colName, editingDocId), payload);
+        } else {
+          await addDoc(collection(db, colName), { ...base, ...payload });
+        }
+
+        if (editingDocId) {
+          successEl.textContent = 'Content updated successfully!';
+          editingDocId = null;
+        } else {
+          successEl.textContent = 'Content added successfully!';
+        }
+        renderContentForm();
+        loadContentList();
+      } catch {
+        errorEl.textContent = 'Failed to add content. Please try again.';
+      }
+    }
+
+    async function loadContentList() {
+      const subject = document.getElementById('content-subject').value;
+      const type    = document.getElementById('content-type').value;
+      const list    = document.getElementById('content-list');
+      list.innerHTML = '';
+
+      try {
+        const snap  = await getDocs(query(collection(db, COLLECTION_MAP[type]), where('teacherId', '==', currentUserId)));
+        const items = [];
+        snap.forEach(d => { if (d.data().subject === subject) items.push({ id: d.id, ...d.data() }); });
+
+        if (!items.length) { list.innerHTML = '<p class="empty">No content added yet for this subject and type.</p>'; return; }
+
+        items.forEach(d => {
+          const item = document.createElement('div'); item.className = 'content-item';
+          const text = document.createElement('div'); text.className = 'content-item-text';
+          const lbl  = document.createElement('div'); lbl.className  = 'content-item-label';
+
+          if (type === 'flashcard') {
+            lbl.textContent = 'FLASHCARD';
+            const q = document.createElement('div'); q.textContent = `Q: ${d.front}`;
+            const a = document.createElement('div'); a.textContent = `A: ${d.back}`; a.style.color = 'rgba(255,255,255,0.5)'; a.style.marginTop = '0.2rem';
+            text.append(lbl, q, a);
+          } else if (type === 'quiz') {
+            lbl.textContent = 'QUIZ QUESTION';
+            const q   = document.createElement('div'); q.textContent = d.question;
+            const ans = document.createElement('div'); ans.textContent = `Correct: ${['A','B','C','D'][d.correct]} — ${d.options[d.correct]}`; ans.style.color = '#81c784'; ans.style.fontSize = '0.8rem'; ans.style.marginTop = '0.2rem';
+            text.append(lbl, q, ans);
+          } else if (type === 'note') {
+            lbl.textContent = `NEED TO KNOW · ${d.topic}`;
+            const p = document.createElement('div'); p.textContent = d.point;
+            text.append(lbl, p);
+          } else if (type === 'examQuestion') {
+            lbl.textContent = `EXAM QUESTION · ${d.topic}`;
+            const q = document.createElement('div'); q.textContent = d.question;
+            text.append(lbl, q);
+          }
+
+          const btnRow = document.createElement('div'); btnRow.style.display = 'flex'; btnRow.style.gap = '0.4rem'; btnRow.style.flexShrink = '0';
+
+          const editBtn = document.createElement('button'); editBtn.className = 'edit-btn'; editBtn.textContent = 'Edit';
+          editBtn.addEventListener('click', () => {
+            editingDocId = d.id;
+            renderContentForm(d);
+            document.getElementById('content-form').scrollIntoView({ behavior: 'smooth', block: 'center' });
+          });
+
+          const del = document.createElement('button'); del.className = 'delete-btn'; del.textContent = 'Delete';
+          del.addEventListener('click', async () => {
+            await deleteDoc(doc(db, COLLECTION_MAP[type], d.id));
+            if (editingDocId === d.id) { editingDocId = null; renderContentForm(); }
+            loadContentList();
+          });
+
+          btnRow.append(editBtn, del);
+          item.append(text, btnRow);
+          list.appendChild(item);
+        });
+      } catch {
+        list.innerHTML = '<p class="empty">Failed to load content.</p>';
+      }
+    }
+
+    document.getElementById('content-subject').addEventListener('change', () => { loadContentList(); });
+    document.getElementById('content-type').addEventListener('change', () => { renderContentForm(); loadContentList(); });
+    renderContentForm();
+
+    // ── Class management ──────────────────────────────────────────────────────
+    async function loadMyClass() {
+      const list = document.getElementById('student-list');
+      try {
+        const snap = await getDocs(query(collection(db, 'classMemberships'), where('teacherId', '==', currentUserId)));
+        if (snap.empty) {
+          list.innerHTML = '<p class="empty">No students in your class yet. Add them using the field above.</p>';
+          return;
+        }
+        list.innerHTML = '';
+        snap.forEach(memberSnap => {
+          const { studentName, studentEmail, studentId } = memberSnap.data();
+          const item   = document.createElement('div'); item.className = 'student-item';
+          const info   = document.createElement('div');
+          const name   = document.createElement('div'); name.className  = 'student-name';  name.textContent  = studentName;
+          const email  = document.createElement('div'); email.className = 'student-email'; email.textContent = studentEmail;
+          info.append(name, email);
+          const removeBtn = document.createElement('button'); removeBtn.className = 'remove-btn'; removeBtn.textContent = 'Remove';
+          removeBtn.addEventListener('click', async () => {
+            await deleteDoc(doc(db, 'classMemberships', memberSnap.id));
+            loadMyClass();
+          });
+          item.append(info, removeBtn);
+          list.appendChild(item);
+        });
+      } catch {
+        list.innerHTML = '<p class="empty">Failed to load class.</p>';
+      }
+    }
+
+    async function addStudentToClass() {
+      const emailInput = document.getElementById('student-email');
+      const email      = emailInput.value.trim().toLowerCase();
+      const successEl  = document.getElementById('class-success');
+      const errorEl    = document.getElementById('class-error');
+      successEl.textContent = '';
+      errorEl.textContent   = '';
+
+      if (!email) { errorEl.textContent = 'Please enter a student email.'; return; }
+
+      try {
+        // Check not already in class
+        const existing = await getDocs(query(collection(db, 'classMemberships'), where('teacherId', '==', currentUserId)));
+        if (existing.docs.some(d => d.data().studentEmail === email)) {
+          errorEl.textContent = 'That student is already in your class.'; return;
+        }
+
+        // Look up the student account
+        const userSnap = await getDocs(query(collection(db, 'users'), where('email', '==', email)));
+        const studentDoc = userSnap.docs.find(d => d.data().role === 'student');
+        if (!studentDoc) {
+          errorEl.textContent = 'No student account found with that email. Make sure they have signed up first.'; return;
+        }
+
+        await addDoc(collection(db, 'classMemberships'), {
+          teacherId:    currentUserId,
+          studentId:    studentDoc.id,
+          studentName:  studentDoc.data().username,
+          studentEmail: studentDoc.data().email,
+          addedAt:      new Date().toISOString()
+        });
+
+        successEl.textContent = `${studentDoc.data().username} added to your class!`;
+        emailInput.value = '';
+        loadMyClass();
+      } catch {
+        errorEl.textContent = 'Failed to add student. Please try again.';
+      }
+    }
+
+    document.getElementById('add-student-btn').addEventListener('click', addStudentToClass);
+    document.getElementById('student-email').addEventListener('keydown', e => { if (e.key === 'Enter') addStudentToClass(); });
   </script>
 </body>
 </html>

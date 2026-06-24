@@ -160,7 +160,7 @@
   <script type="module">
     import { auth, db } from './firebase-config.js';
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { doc, getDoc, setDoc, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     // ── Content data ──────────────────────────────────────────────────────────
     const SUBJECTS = {
@@ -437,6 +437,7 @@
     let currentSection = 'need-to-know';
     let flippedCards  = new Set();
     let quizState     = { answers: {}, submitted: false };
+    let teacherContent = { flashcards: [], quiz: [], needToKnow: [], questionsByTopic: [] };
 
     // Redirect back if the URL has an invalid subject
     if (!subjectData) { window.location.href = 'student-dashboard.html'; }
@@ -452,7 +453,7 @@
         if (role === 'teacher') { window.location.href = 'teacher-dashboard.html'; return; }
         document.getElementById('username-display').textContent = username;
       }
-      await loadProgress();
+      await Promise.all([loadProgress(), loadTeacherContent()]);
       renderContent();
       markViewed('needToKnow');
     });
@@ -477,8 +478,40 @@
       }
     }
 
+    async function loadTeacherContent() {
+      const [fcSnap, quizSnap, noteSnap, examSnap] = await Promise.all([
+        getDocs(query(collection(db, 'flashcards'),    where('subject', '==', subjectKey))),
+        getDocs(query(collection(db, 'quizQuestions'), where('subject', '==', subjectKey))),
+        getDocs(query(collection(db, 'notePoints'),    where('subject', '==', subjectKey))),
+        getDocs(query(collection(db, 'examQuestions'), where('subject', '==', subjectKey)))
+      ]);
+
+      fcSnap.forEach(d   => { const { front, back } = d.data(); teacherContent.flashcards.push({ front, back }); });
+      quizSnap.forEach(d => { const { question, options, correct } = d.data(); teacherContent.quiz.push({ question, options, correct }); });
+
+      const notesByTopic = {};
+      noteSnap.forEach(d => {
+        const { topic, point } = d.data();
+        if (!notesByTopic[topic]) notesByTopic[topic] = [];
+        notesByTopic[topic].push(point);
+      });
+      Object.entries(notesByTopic).forEach(([title, points]) => teacherContent.needToKnow.push({ title, points }));
+
+      const examsByTopic = {};
+      examSnap.forEach(d => {
+        const { topic, question, answer } = d.data();
+        if (!examsByTopic[topic]) examsByTopic[topic] = [];
+        examsByTopic[topic].push({ q: question, a: answer });
+      });
+      Object.entries(examsByTopic).forEach(([topic, questions]) => teacherContent.questionsByTopic.push({ topic, questions }));
+    }
+
+    function getAllContent(key) {
+      return [...(subjectData[key] || []), ...(teacherContent[key] || [])];
+    }
+
     function renderProgress() {
-      const flashTotal  = subjectData.flashcards.length;
+      const flashTotal  = getAllContent('flashcards').length;
       const flashDone   = progressData.flashcards?.completed || 0;
       const quizScore   = progressData.quiz?.score ?? null;
       const visited     = ['needToKnow', 'questionsByTopic', 'pastPapers'].filter(k => progressData[k]?.viewed).length;
@@ -565,7 +598,7 @@
 
     function renderNeedToKnow(area) {
       area.appendChild(makeHeader('📋 Stuff You Need to Know', `Key facts and concepts for ${subjectData.name}`));
-      subjectData.needToKnow.forEach(({ title, points }) => {
+      getAllContent('needToKnow').forEach(({ title, points }) => {
         const card = document.createElement('div'); card.className = 'topic-card';
         const h4   = document.createElement('h4'); h4.textContent = title;
         const ul   = document.createElement('ul'); ul.className = 'topic-points';
@@ -578,7 +611,7 @@
     function renderFlashcards(area) {
       area.appendChild(makeHeader('🃏 Flashcards', 'Click a card to flip it and reveal the answer'));
       const grid = document.createElement('div'); grid.className = 'flashcards-grid';
-      subjectData.flashcards.forEach((card, i) => {
+      getAllContent('flashcards').forEach((card, i) => {
         const el    = document.createElement('div'); el.className = `flashcard${flippedCards.has(i) ? ' flipped' : ''}`;
         const inner = document.createElement('div'); inner.className = 'flashcard-inner';
 
@@ -598,7 +631,7 @@
         el.addEventListener('click', async () => {
           el.classList.toggle('flipped');
           flippedCards.has(i) ? flippedCards.delete(i) : flippedCards.add(i);
-          await saveProgress({ flashcards: { completed: flippedCards.size, total: subjectData.flashcards.length, lastAttempted: new Date().toISOString() } });
+          await saveProgress({ flashcards: { completed: flippedCards.size, total: getAllContent('flashcards').length, lastAttempted: new Date().toISOString() } });
         });
         grid.appendChild(el);
       });
@@ -611,9 +644,9 @@
       const container = document.createElement('div'); container.className = 'quiz-container';
       const letters   = ['A', 'B', 'C', 'D'];
 
-      subjectData.quiz.forEach((q, qi) => {
+      getAllContent('quiz').forEach((q, qi) => {
         const card  = document.createElement('div'); card.className = 'quiz-card';
-        const qNum  = document.createElement('div'); qNum.className = 'q-num';  qNum.textContent = `Question ${qi + 1} of ${subjectData.quiz.length}`;
+        const qNum  = document.createElement('div'); qNum.className = 'q-num';  qNum.textContent = `Question ${qi + 1} of ${getAllContent('quiz').length}`;
         const qText = document.createElement('div'); qText.className = 'q-text'; qText.textContent = q.question;
         const opts  = document.createElement('div'); opts.className = 'quiz-options';
 
@@ -637,23 +670,23 @@
       if (!quizState.submitted) {
         const answered = Object.keys(quizState.answers).length;
         const btn = document.createElement('button'); btn.className = 'quiz-submit';
-        btn.textContent = `Submit Quiz (${answered}/${subjectData.quiz.length} answered)`;
-        btn.disabled = answered < subjectData.quiz.length;
+        btn.textContent = `Submit Quiz (${answered}/${getAllContent('quiz').length} answered)`;
+        btn.disabled = answered < getAllContent('quiz').length;
         btn.addEventListener('click', async () => {
           quizState.submitted = true;
-          const correct = subjectData.quiz.filter((q, i) => quizState.answers[i] === q.correct).length;
-          const score   = Math.round((correct / subjectData.quiz.length) * 100);
+          const correct = getAllContent('quiz').filter((q, i) => quizState.answers[i] === q.correct).length;
+          const score   = Math.round((correct / getAllContent('quiz').length) * 100);
           const prev    = progressData.quiz?.score || 0;
           await saveProgress({ quiz: { score: Math.max(score, prev), attempts: (progressData.quiz?.attempts || 0) + 1, lastAttempted: new Date().toISOString() } });
           renderQuiz(area);
         });
         container.appendChild(btn);
       } else {
-        const correct = subjectData.quiz.filter((q, i) => quizState.answers[i] === q.correct).length;
-        const score   = Math.round((correct / subjectData.quiz.length) * 100);
+        const correct = getAllContent('quiz').filter((q, i) => quizState.answers[i] === q.correct).length;
+        const score   = Math.round((correct / getAllContent('quiz').length) * 100);
         const result  = document.createElement('div'); result.className = 'quiz-result';
         const scoreEl = document.createElement('div'); scoreEl.className = 'result-score'; scoreEl.textContent = `${score}%`;
-        const lbl     = document.createElement('div'); lbl.className = 'result-label'; lbl.textContent = `${correct} out of ${subjectData.quiz.length} correct`;
+        const lbl     = document.createElement('div'); lbl.className = 'result-label'; lbl.textContent = `${correct} out of ${getAllContent('quiz').length} correct`;
         const retake  = document.createElement('button'); retake.className = 'retake-btn'; retake.textContent = 'Retake Quiz';
         retake.addEventListener('click', () => { quizState = { answers: {}, submitted: false }; renderQuiz(area); });
         result.append(scoreEl, lbl, retake);
@@ -664,7 +697,7 @@
 
     function renderQuestionsByTopic(area) {
       area.appendChild(makeHeader('📝 Questions by Topic', 'Attempt each question, then reveal the model answer'));
-      subjectData.questionsByTopic.forEach(({ topic, questions }) => {
+      getAllContent('questionsByTopic').forEach(({ topic, questions }) => {
         const sec = document.createElement('div'); sec.className = 'questions-topic';
         const h4  = document.createElement('h4'); h4.textContent = topic;
         sec.appendChild(h4);

@@ -50,10 +50,13 @@
   <script type="module">
     import { auth, db } from './firebase-config.js';
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { doc, getDoc, collection, getDocs, orderBy, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { doc, getDoc, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    let currentUserId = null;
 
     onAuthStateChanged(auth, async (user) => {
       if (!user) { window.location.href = 'index.html'; return; }
+      currentUserId = user.uid;
       const snap = await getDoc(doc(db, 'users', user.uid));
       if (snap.exists()) {
         const { username, role } = snap.data();
@@ -67,30 +70,31 @@
     async function loadHomework() {
       const list = document.getElementById('homework-list');
       try {
-        const q = query(collection(db, 'assignments'), orderBy('dueDate'));
-        const snap = await getDocs(q);
-        if (snap.empty) {
-          list.innerHTML = '<p class="empty">No homework assigned yet.</p>';
+        // Find which teacher this student belongs to
+        const memberSnap = await getDocs(query(collection(db, 'classMemberships'), where('studentId', '==', currentUserId)));
+        if (memberSnap.empty) {
+          list.innerHTML = '<p class="empty">You haven\'t been added to a class yet — ask your teacher to add you.</p>';
           return;
         }
+        const teacherId = memberSnap.docs[0].data().teacherId;
+
+        // Load only homework from that teacher, sorted client-side
+        const snap = await getDocs(query(collection(db, 'assignments'), where('teacherId', '==', teacherId)));
+        if (snap.empty) { list.innerHTML = '<p class="empty">No homework assigned yet.</p>'; return; }
+
+        const assignments = [];
+        snap.forEach(d => assignments.push(d.data()));
+        assignments.sort((a, b) => a.dueDate.localeCompare(b.dueDate));
+
         list.innerHTML = '';
-        snap.forEach(d => {
-          const { subject, title, dueDate } = d.data();
-          const card = document.createElement('div');
-          card.className = 'hw-card';
-          const info = document.createElement('div');
-          info.className = 'hw-info';
-          const subEl = document.createElement('div');
-          subEl.className = 'hw-subject';
-          subEl.textContent = subject;
-          const titleEl = document.createElement('div');
-          titleEl.className = 'hw-title';
-          titleEl.textContent = title;
-          info.append(subEl, titleEl);
-          const dueEl = document.createElement('div');
-          dueEl.className = 'hw-due';
-          dueEl.textContent = `Due ${dueDate}`;
-          card.append(info, dueEl);
+        assignments.forEach(({ subject, title, dueDate }) => {
+          const card  = document.createElement('div'); card.className  = 'hw-card';
+          const info  = document.createElement('div'); info.className  = 'hw-info';
+          const sub   = document.createElement('div'); sub.className   = 'hw-subject'; sub.textContent = subject;
+          const ttl   = document.createElement('div'); ttl.className   = 'hw-title';   ttl.textContent = title;
+          const due   = document.createElement('div'); due.className   = 'hw-due';     due.textContent = `Due ${dueDate}`;
+          info.append(sub, ttl);
+          card.append(info, due);
           list.appendChild(card);
         });
       } catch {
