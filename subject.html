@@ -147,7 +147,7 @@
     <!-- Sidebar + Content -->
     <div class="subject-layout">
       <nav class="sidebar">
-        <button class="section-btn active" data-section="need-to-know">📋 Need to Know</button>
+        <button class="section-btn active" data-section="need-to-know">📋 Content</button>
         <button class="section-btn" data-section="flashcards">🃏 Flashcards</button>
         <button class="section-btn" data-section="quiz">✅ Quiz</button>
         <button class="section-btn" data-section="questions-by-topic">📝 Questions by Topic</button>
@@ -715,7 +715,7 @@
       // Activity list
       const activities = [];
       const p = progressData;
-      if (p.needToKnow?.viewed)       activities.push({ icon: '📋', name: 'Need to Know',        badge: 'Viewed',   cls: 'badge-blue',   date: p.needToKnow.lastViewed });
+      if (p.needToKnow?.viewed)       activities.push({ icon: '📋', name: 'Content',        badge: 'Viewed',   cls: 'badge-blue',   date: p.needToKnow.lastViewed });
       if (p.flashcards?.completed)    activities.push({ icon: '🃏', name: `Flashcards (${p.flashcards.completed}/${flashTotal})`, badge: p.flashcards.completed >= flashTotal ? 'All done!' : 'In progress', cls: p.flashcards.completed >= flashTotal ? 'badge-green' : 'badge-yellow', date: p.flashcards.lastAttempted });
       if (p.quiz?.attempts)           activities.push({ icon: '✅', name: 'Quiz',                 badge: `${p.quiz.score}% · ${p.quiz.attempts} attempt${p.quiz.attempts > 1 ? 's' : ''}`, cls: p.quiz.score >= 80 ? 'badge-green' : 'badge-yellow', date: p.quiz.lastAttempted });
       if (p.questionsByTopic?.viewed) activities.push({ icon: '📝', name: 'Questions by Topic',   badge: 'Viewed',   cls: 'badge-blue',   date: p.questionsByTopic.lastViewed });
@@ -771,7 +771,7 @@
     }
 
     function renderNeedToKnow(area) {
-      area.appendChild(makeHeader('📋 Stuff You Need to Know', `Key facts and concepts for ${subjectData.name}`));
+      area.appendChild(makeHeader('📋 Content', `Key facts and concepts for ${subjectData.name}`));
       getAllContent('needToKnow').forEach(({ title, points }) => {
         const card = document.createElement('div'); card.className = 'topic-card';
         const h4   = document.createElement('h4'); h4.textContent = title;
