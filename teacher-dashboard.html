@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teacher Dashboard | GCSE Revision</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: #fff;
+    }
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      background: rgba(0,0,0,0.2);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .logo { font-size: 1.2rem; font-weight: 800; }
+    .logo span { color: #7eb8f7; }
+    .nav-right { display: flex; align-items: center; gap: 1rem; font-size: 0.9rem; color: rgba(255,255,255,0.7); }
+    .logout-btn {
+      padding: 0.4rem 1rem;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    .logout-btn:hover { background: rgba(255,255,255,0.2); }
+    main { padding: 2rem; max-width: 900px; margin: 0 auto; }
+    .welcome { margin-bottom: 2rem; }
+    .welcome h1 { font-size: 1.8rem; font-weight: 800; }
+    .welcome p { color: rgba(255,255,255,0.55); margin-top: 0.3rem; }
+    .section-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 1rem;
+    }
+    .card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .field { display: flex; flex-direction: column; gap: 0.35rem; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.65); }
+    .field input, .field select, .field textarea {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      color: #fff;
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: #7eb8f7; }
+    .field select option { background: #1a1a2e; }
+    .field textarea { resize: vertical; min-height: 80px; }
+    .field input::placeholder, .field textarea::placeholder { color: rgba(255,255,255,0.3); }
+    .submit-btn {
+      margin-top: 1rem;
+      padding: 0.75rem 1.5rem;
+      background: #0f3460;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .submit-btn:hover { background: #1a4a7a; }
+    .success-msg { color: #81c784; font-size: 0.85rem; margin-top: 0.75rem; min-height: 1.1rem; }
+    .error-msg { color: #e57373; font-size: 0.85rem; margin-top: 0.75rem; min-height: 1.1rem; }
+    .assignment-list { display: flex; flex-direction: column; gap: 0.75rem; }
+    .assignment-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 1rem 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .a-info .a-subject { font-weight: 700; font-size: 0.95rem; }
+    .a-info .a-title { font-size: 0.85rem; color: rgba(255,255,255,0.55); margin-top: 0.2rem; }
+    .a-due { font-size: 0.78rem; background: rgba(255,213,0,0.12); color: #ffd54f; padding: 0.25rem 0.7rem; border-radius: 20px; white-space: nowrap; }
+    .empty { color: rgba(255,255,255,0.35); font-size: 0.9rem; padding: 0.5rem 0; }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="logo">📚 GCSE<span>Revision</span></div>
+    <div class="nav-right">
+      <span id="username-display"></span>
+      <button class="logout-btn" id="logout-btn">Log Out</button>
+    </div>
+  </nav>
+  <main>
+    <div class="welcome">
+      <h1>Hello, <span id="welcome-name">...</span> 👩‍🏫</h1>
+      <p>Manage your assignments and track student progress.</p>
+    </div>
+
+    <p class="section-title">Create Assignment</p>
+    <div class="card">
+      <form id="assignment-form">
+        <div class="form-grid">
+          <div class="field">
+            <label for="subject">Subject</label>
+            <select id="subject" required>
+              <option value="">Select subject...</option>
+              <option>Biology</option>
+              <option>Chemistry</option>
+              <option>Physics</option>
+              <option>Computer Science</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="due-date">Due Date</label>
+            <input type="date" id="due-date" required />
+          </div>
+          <div class="field full">
+            <label for="title">Title</label>
+            <input type="text" id="title" placeholder="e.g. Quadratic equations practice" required />
+          </div>
+          <div class="field full">
+            <label for="description">Description (optional)</label>
+            <textarea id="description" placeholder="Any extra instructions..."></textarea>
+          </div>
+        </div>
+        <button type="submit" class="submit-btn">Assign to Students</button>
+        <p class="success-msg" id="success-msg"></p>
+        <p class="error-msg" id="error-msg"></p>
+      </form>
+    </div>
+
+    <p class="section-title">Your Assignments</p>
+    <div class="assignment-list" id="assignment-list">
+      <p class="empty">Loading...</p>
+    </div>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, addDoc, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBJNEAXgj8llBi52GV3-rPI5I6ch_3_FFI",
+      authDomain: "gcse-revision-b75d3.firebaseapp.com",
+      projectId: "gcse-revision-b75d3",
+      storageBucket: "gcse-revision-b75d3.firebasestorage.app",
+      messagingSenderId: "904812528723",
+      appId: "1:904812528723:web:647fa52a3311af519472a6"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    let currentUserId = null;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { window.location.href = 'index.html'; return; }
+      currentUserId = user.uid;
+      const snap = await getDoc(doc(db, 'users', user.uid));
+      if (snap.exists()) {
+        const { username, role } = snap.data();
+        if (role === 'student') { window.location.href = 'student-dashboard.html'; return; }
+        document.getElementById('username-display').textContent = username;
+        document.getElementById('welcome-name').textContent = username;
+      }
+      loadAssignments();
+    });
+
+    async function loadAssignments() {
+      const list = document.getElementById('assignment-list');
+      try {
+        const q = query(collection(db, 'assignments'), where('teacherId', '==', currentUserId));
+        const snap = await getDocs(q);
+        if (snap.empty) {
+          list.innerHTML = '<p class="empty">No assignments yet. Create one above.</p>';
+          return;
+        }
+        const assignments = [];
+        snap.forEach(d => assignments.push(d.data()));
+        assignments.sort((a, b) => a.dueDate.localeCompare(b.dueDate));
+        list.innerHTML = '';
+        assignments.forEach(({ subject, title, dueDate }) => {
+          const card = document.createElement('div');
+          card.className = 'assignment-card';
+          const info = document.createElement('div');
+          info.className = 'a-info';
+          const subEl = document.createElement('div');
+          subEl.className = 'a-subject';
+          subEl.textContent = subject;
+          const titleEl = document.createElement('div');
+          titleEl.className = 'a-title';
+          titleEl.textContent = title;
+          info.append(subEl, titleEl);
+          const dueEl = document.createElement('div');
+          dueEl.className = 'a-due';
+          dueEl.textContent = `Due ${dueDate}`;
+          card.append(info, dueEl);
+          list.appendChild(card);
+        });
+      } catch {
+        list.innerHTML = '<p class="empty">Failed to load assignments.</p>';
+      }
+    }
+
+    document.getElementById('assignment-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const successEl = document.getElementById('success-msg');
+      const errorEl = document.getElementById('error-msg');
+      successEl.textContent = '';
+      errorEl.textContent = '';
+
+      const subject = document.getElementById('subject').value;
+      const title = document.getElementById('title').value.trim();
+      const dueDate = document.getElementById('due-date').value;
+      const description = document.getElementById('description').value.trim();
+
+      try {
+        await addDoc(collection(db, 'assignments'), {
+          teacherId: currentUserId,
+          subject,
+          title,
+          description,
+          dueDate,
+          createdAt: new Date().toISOString()
+        });
+        successEl.textContent = 'Assignment created successfully!';
+        e.target.reset();
+        loadAssignments();
+      } catch {
+        errorEl.textContent = 'Failed to create assignment. Please try again.';
+      }
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = 'index.html';
+    });
+  </script>
+</body>
+</html>
